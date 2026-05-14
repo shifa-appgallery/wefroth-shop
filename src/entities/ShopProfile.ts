@@ -13,7 +13,7 @@ export class ShopProfile {
   })
   seller_type: SellerType;
 
-  @Column("int")
+  @Column("int", { nullable: true })
   seller_id: number;
 
   @Column()

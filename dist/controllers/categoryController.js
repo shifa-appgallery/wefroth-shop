@@ -4,8 +4,10 @@ exports.deleteCategoryController = exports.updateCategoryController = exports.ge
 const categoryService_1 = require("../service/categoryService");
 const createCategoryController = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user.id;
+        console.log("userId", userId);
         const response = await (0, categoryService_1.createCategory)(req.body, userId);
+        console.log("response", response);
         return res.status(201).json({
             success: true,
             data: response,
@@ -37,7 +39,7 @@ const getCategoriesController = async (req, res) => {
 exports.getCategoriesController = getCategoriesController;
 const updateCategoryController = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user.id;
         const response = await (0, categoryService_1.updateCategory)(Number(req.query.categoryId), req.body, userId);
         return res.status(200).json({
             success: true,

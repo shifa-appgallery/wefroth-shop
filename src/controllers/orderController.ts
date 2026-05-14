@@ -1,0 +1,89 @@
+import { Response } from "express";
+import { AuthRequest } from "../middleware/authorization";
+import { createOrder, getOrderById, getOrders, updateOrderStatus } from "../service/orderService";
+
+export const createOrderController = async (
+    req: AuthRequest,
+    res: Response
+) => {
+    try {
+        const userId = req.user.id;
+        const response = await createOrder(req.body, userId);
+        return res.status(201).json({
+            success: true,
+            data: response,
+        });
+    } catch (error: any) {
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+
+export const getOrdersController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const userId = req.user.id;
+
+    const response = await getOrders(userId);
+
+    return res.status(200).json({
+      success: true,
+      data: response,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getOrderByIdController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const response = await getOrderById(String(req.query.orderId));
+
+    return res.status(200).json({
+      success: true,
+      data: response,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateOrderStatusController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const userId = req.user.id;
+
+    const response = await updateOrderStatus(
+      String(req.query.orderId),
+      req.body,
+      userId
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: response,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+

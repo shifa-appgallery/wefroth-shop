@@ -4,7 +4,7 @@ exports.deleteProductController = exports.updateProductController = exports.getP
 const productService_1 = require("../service/productService");
 const createProductController = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user.id;
         const response = await (0, productService_1.createProduct)(req.body, userId);
         return res.status(201).json({
             success: true,
@@ -37,7 +37,7 @@ const getProductsController = async (req, res) => {
 exports.getProductsController = getProductsController;
 const updateProductController = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user.id;
         const response = await (0, productService_1.updateProduct)(req.query.productId, req.body, userId);
         return res.status(200).json({
             success: true,

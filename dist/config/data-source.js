@@ -17,5 +17,5 @@ exports.AppDataSource = new typeorm_1.DataSource({
     database: process.env.DB_NAME,
     synchronize: true,
     logging: true,
-    entities: ["src/entities/*.ts"],
+    entities: [__dirname + "/../entities/*.{js,ts}"]
 });

@@ -4,7 +4,7 @@ exports.deleteVariantController = exports.updateVariantController = exports.getV
 const variantService_1 = require("../service/variantService");
 const createVariantController = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user.id;
         const response = await (0, variantService_1.createVariant)(req.body, userId);
         return res.status(201).json({
             success: true,
@@ -37,7 +37,7 @@ const getVariantsController = async (req, res) => {
 exports.getVariantsController = getVariantsController;
 const updateVariantController = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user.id;
         const response = await (0, variantService_1.updateVariant)(req.params.variantId, req.body, userId);
         return res.status(200).json({
             success: true,

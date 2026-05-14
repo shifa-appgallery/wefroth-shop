@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TransactionStatus = exports.TransactionType = exports.PaymentStatus = exports.OrderStatus = exports.SellerType = void 0;
+exports.CouponType = exports.TransactionStatus = exports.TransactionType = exports.PaymentStatus = exports.OrderStatus = exports.SellerType = void 0;
 var SellerType;
 (function (SellerType) {
     SellerType["PLATFORM"] = "PLATFORM";
@@ -35,3 +35,8 @@ var TransactionStatus;
     TransactionStatus["PENDING"] = "PENDING";
     TransactionStatus["SETTLED"] = "SETTLED";
 })(TransactionStatus || (exports.TransactionStatus = TransactionStatus = {}));
+var CouponType;
+(function (CouponType) {
+    CouponType["PERCENTAGE"] = "PERCENTAGE";
+    CouponType["FIXED"] = "FIXED";
+})(CouponType || (exports.CouponType = CouponType = {}));

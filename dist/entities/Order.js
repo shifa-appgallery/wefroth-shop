@@ -1,4 +1,5 @@
 "use strict";
+// entities/Order.ts
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -12,6 +13,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Order = void 0;
 const typeorm_1 = require("typeorm");
 const OrderItem_1 = require("./OrderItem");
+const ShippingAddress_1 = require("./ShippingAddress");
+const Coupon_1 = require("./Coupon");
+const Transaction_1 = require("./Transaction");
 const enums_1 = require("../constants/enums");
 let Order = class Order {
 };
@@ -21,9 +25,15 @@ __decorate([
     __metadata("design:type", String)
 ], Order.prototype, "orderId", void 0);
 __decorate([
-    (0, typeorm_1.Column)("uuid"),
+    (0, typeorm_1.Column)("int"),
     __metadata("design:type", String)
 ], Order.prototype, "user_id", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        unique: true,
+    }),
+    __metadata("design:type", String)
+], Order.prototype, "order_number", void 0);
 __decorate([
     (0, typeorm_1.Column)({
         type: "enum",
@@ -41,12 +51,34 @@ __decorate([
     __metadata("design:type", String)
 ], Order.prototype, "payment_status", void 0);
 __decorate([
+    (0, typeorm_1.ManyToOne)(() => ShippingAddress_1.ShippingAddress, {
+        nullable: true,
+        eager: true,
+    }),
+    __metadata("design:type", ShippingAddress_1.ShippingAddress)
+], Order.prototype, "shipping_address", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => Coupon_1.Coupon, {
+        nullable: true,
+        eager: true,
+    }),
+    __metadata("design:type", Coupon_1.Coupon)
+], Order.prototype, "coupon", void 0);
+__decorate([
     (0, typeorm_1.Column)("decimal", {
         precision: 10,
         scale: 2,
     }),
     __metadata("design:type", Number)
 ], Order.prototype, "subtotal", void 0);
+__decorate([
+    (0, typeorm_1.Column)("decimal", {
+        precision: 10,
+        scale: 2,
+        default: 0,
+    }),
+    __metadata("design:type", Number)
+], Order.prototype, "discount_amount", void 0);
 __decorate([
     (0, typeorm_1.Column)("decimal", {
         precision: 10,
@@ -71,9 +103,31 @@ __decorate([
     __metadata("design:type", Number)
 ], Order.prototype, "total_amount", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => OrderItem_1.OrderItem, (item) => item.order),
+    (0, typeorm_1.Column)({
+        nullable: true,
+    }),
+    __metadata("design:type", String)
+], Order.prototype, "payment_method", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        nullable: true,
+    }),
+    __metadata("design:type", String)
+], Order.prototype, "notes", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => OrderItem_1.OrderItem, (item) => item.order, {
+        cascade: true,
+    }),
     __metadata("design:type", Array)
 ], Order.prototype, "items", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Transaction_1.Transaction, (transaction) => transaction.order),
+    __metadata("design:type", Array)
+], Order.prototype, "transactions", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: true }),
+    __metadata("design:type", Boolean)
+], Order.prototype, "is_active", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", Number)

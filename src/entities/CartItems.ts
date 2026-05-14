@@ -1,3 +1,5 @@
+// entities/CartItem.ts
+
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -7,38 +9,30 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-import { Order } from "./Order";
+import { Cart } from "./Cart";
 import { Product } from "./Product";
-
 import { ProductVariant } from "./ProductVariant";
-import { SellerType } from "../constants/enums";
 
-@Entity("order_items")
-export class OrderItem {
+@Entity("cart_items")
+export class CartItem {
   @PrimaryGeneratedColumn("uuid")
-  orderItemId: string;
+  cartItemId: string;
 
-  @ManyToOne(() => Order, (order) => order.items, {
+  @ManyToOne(() => Cart, (cart) => cart.items, {
     onDelete: "CASCADE",
   })
-  order: Order;
+  cart: Cart;
 
-  @ManyToOne(() => Product)
+  @ManyToOne(() => Product, {
+    eager: true,
+  })
   product: Product;
 
   @ManyToOne(() => ProductVariant, {
     nullable: true,
+    eager: true,
   })
   variant: ProductVariant;
-
-  @Column({
-    type: "enum",
-    enum: SellerType,
-  })
-  seller_type: SellerType;
-
-  @Column("int", { nullable: true })
-  seller_id: string;
 
   @Column()
   quantity: number;
@@ -55,14 +49,10 @@ export class OrderItem {
   })
   total_price: number;
 
-  @Column("decimal", {
-    precision: 10,
-    scale: 2,
-    default: 0,
-  })
-  commission_amount: number;
+  @Column({ default: true })
+  is_active: boolean;
 
-  @Column()
+  @Column({ nullable: true })
   created_by: number;
 
   @Column({ nullable: true })

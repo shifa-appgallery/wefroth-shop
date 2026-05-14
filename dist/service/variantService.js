@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteVariant = exports.updateVariant = exports.getVariants = exports.createVariant = void 0;
 const data_source_1 = require("../config/data-source");
-const ProductVarient_1 = require("../entities/ProductVarient");
-const variantRepository = data_source_1.AppDataSource.getRepository(ProductVarient_1.ProductVariant);
+const ProductVariant_1 = require("../entities/ProductVariant");
+const variantRepository = data_source_1.AppDataSource.getRepository(ProductVariant_1.ProductVariant);
 const createVariant = async (body, userId) => {
     const variant = variantRepository.create({
         product: {

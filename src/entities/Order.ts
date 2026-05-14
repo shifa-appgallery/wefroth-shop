@@ -1,23 +1,37 @@
+// entities/Order.ts
+
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
+  ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm";
 
 import { OrderItem } from "./OrderItem";
-import { OrderStatus, PaymentStatus } from "../constants/enums";
+import { ShippingAddress } from "./ShippingAddress";
+import { Coupon } from "./Coupon";
+import { Transaction } from "./Transaction";
 
+import {
+  OrderStatus,
+  PaymentStatus,
+} from "../constants/enums";
 
 @Entity("orders")
 export class Order {
   @PrimaryGeneratedColumn("uuid")
   orderId: string;
 
-  @Column("uuid")
+  @Column("int")
   user_id: string;
+
+  @Column({
+    unique: true,
+  })
+  order_number: string;
 
   @Column({
     type: "enum",
@@ -33,11 +47,30 @@ export class Order {
   })
   payment_status: PaymentStatus;
 
+  @ManyToOne(() => ShippingAddress, {
+    nullable: true,
+    eager: true,
+  })
+  shipping_address: ShippingAddress;
+
+  @ManyToOne(() => Coupon, {
+    nullable: true,
+    eager: true,
+  })
+  coupon: Coupon;
+
   @Column("decimal", {
     precision: 10,
     scale: 2,
   })
   subtotal: number;
+
+  @Column("decimal", {
+    precision: 10,
+    scale: 2,
+    default: 0,
+  })
+  discount_amount: number;
 
   @Column("decimal", {
     precision: 10,
@@ -59,8 +92,26 @@ export class Order {
   })
   total_amount: number;
 
-  @OneToMany(() => OrderItem, (item) => item.order)
+  @Column({
+    nullable: true,
+  })
+  payment_method: string;
+
+  @Column({
+    nullable: true,
+  })
+  notes: string;
+
+  @OneToMany(() => OrderItem, (item) => item.order, {
+    cascade: true,
+  })
   items: OrderItem[];
+
+  @OneToMany(() => Transaction, (transaction) => transaction.order)
+  transactions: Transaction[];
+
+  @Column({ default: true })
+  is_active: boolean;
 
   @Column()
   created_by: number;
@@ -73,5 +124,4 @@ export class Order {
 
   @UpdateDateColumn()
   updated_at: Date;
-
 }

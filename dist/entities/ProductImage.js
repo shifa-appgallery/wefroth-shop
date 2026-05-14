@@ -35,6 +35,14 @@ __decorate([
 ], ProductImage.prototype, "sort_order", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
+    __metadata("design:type", Boolean)
+], ProductImage.prototype, "is_thumbnail", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], ProductImage.prototype, "alt_text", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
     __metadata("design:type", Number)
 ], ProductImage.prototype, "created_by", void 0);
 __decorate([

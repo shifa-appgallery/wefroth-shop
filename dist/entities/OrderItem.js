@@ -13,7 +13,7 @@ exports.OrderItem = void 0;
 const typeorm_1 = require("typeorm");
 const Order_1 = require("./Order");
 const Product_1 = require("./Product");
-const ProductVarient_1 = require("./ProductVarient");
+const ProductVariant_1 = require("./ProductVariant");
 const enums_1 = require("../constants/enums");
 let OrderItem = class OrderItem {
 };
@@ -33,10 +33,10 @@ __decorate([
     __metadata("design:type", Product_1.Product)
 ], OrderItem.prototype, "product", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => ProductVarient_1.ProductVariant, {
+    (0, typeorm_1.ManyToOne)(() => ProductVariant_1.ProductVariant, {
         nullable: true,
     }),
-    __metadata("design:type", ProductVarient_1.ProductVariant)
+    __metadata("design:type", ProductVariant_1.ProductVariant)
 ], OrderItem.prototype, "variant", void 0);
 __decorate([
     (0, typeorm_1.Column)({
@@ -46,7 +46,7 @@ __decorate([
     __metadata("design:type", String)
 ], OrderItem.prototype, "seller_type", void 0);
 __decorate([
-    (0, typeorm_1.Column)("uuid"),
+    (0, typeorm_1.Column)("int", { nullable: true }),
     __metadata("design:type", String)
 ], OrderItem.prototype, "seller_id", void 0);
 __decorate([

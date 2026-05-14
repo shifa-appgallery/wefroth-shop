@@ -27,18 +27,7 @@ __decorate([
     __metadata("design:type", String)
 ], Category.prototype, "slug", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Category, (category) => category.children, {
-        nullable: true,
-        onDelete: "CASCADE",
-    }),
-    __metadata("design:type", Category)
-], Category.prototype, "parent", void 0);
-__decorate([
-    (0, typeorm_1.OneToMany)(() => Category, (category) => category.parent),
-    __metadata("design:type", Array)
-], Category.prototype, "children", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ default: 1 }),
     __metadata("design:type", Number)
 ], Category.prototype, "level", void 0);
 __decorate([
@@ -50,14 +39,6 @@ __decorate([
     __metadata("design:type", Number)
 ], Category.prototype, "sort_order", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", Number)
-], Category.prototype, "created_by", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", Number)
-], Category.prototype, "updated_by", void 0);
-__decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], Category.prototype, "created_at", void 0);
@@ -65,6 +46,25 @@ __decorate([
     (0, typeorm_1.UpdateDateColumn)(),
     __metadata("design:type", Date)
 ], Category.prototype, "updated_at", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", Number)
+], Category.prototype, "created_by", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", Number)
+], Category.prototype, "updated_by", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => Category, (category) => category.children, {
+        nullable: true,
+    }),
+    (0, typeorm_1.JoinColumn)({ name: "parentCategoryId" }),
+    __metadata("design:type", Category)
+], Category.prototype, "parent", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Category, (category) => category.parent),
+    __metadata("design:type", Array)
+], Category.prototype, "children", void 0);
 exports.Category = Category = __decorate([
     (0, typeorm_1.Entity)("categories")
 ], Category);

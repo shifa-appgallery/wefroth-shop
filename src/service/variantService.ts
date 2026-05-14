@@ -1,5 +1,5 @@
 import { AppDataSource } from "../config/data-source";
-import { ProductVariant } from "../entities/ProductVarient";
+import { ProductVariant } from "../entities/ProductVariant";
 
 const variantRepository = AppDataSource.getRepository(ProductVariant);
 

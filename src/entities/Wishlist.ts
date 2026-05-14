@@ -1,3 +1,5 @@
+// entities/Wishlist.ts
+
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -9,29 +11,23 @@ import {
 
 import { Product } from "./Product";
 
-@Entity("product_images")
-export class ProductImage {
+@Entity("wishlist")
+export class Wishlist {
   @PrimaryGeneratedColumn("uuid")
-  imageId: string;
+  wishlistId: string;
 
-  @ManyToOne(() => Product, (product) => product.images, {
+  @Column("uuid")
+  user_id: string;
+
+  @ManyToOne(() => Product, {
     onDelete: "CASCADE",
   })
   product: Product;
 
-  @Column()
-  image_url: string;
+  @Column({ default: true })
+  is_active: boolean;
 
-  @Column({ default: 0 })
-  sort_order: number;
-
-  @Column()
-  is_thumbnail: boolean
-
-  @Column()
-  alt_text: string
-
-  @Column()
+  @Column({ nullable: true })
   created_by: number;
 
   @Column({ nullable: true })

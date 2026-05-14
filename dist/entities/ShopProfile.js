@@ -27,8 +27,8 @@ __decorate([
     __metadata("design:type", String)
 ], ShopProfile.prototype, "seller_type", void 0);
 __decorate([
-    (0, typeorm_1.Column)("uuid"),
-    __metadata("design:type", String)
+    (0, typeorm_1.Column)("int", { nullable: true }),
+    __metadata("design:type", Number)
 ], ShopProfile.prototype, "seller_id", void 0);
 __decorate([
     (0, typeorm_1.Column)(),

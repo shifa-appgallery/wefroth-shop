@@ -31,3 +31,9 @@ export enum TransactionStatus {
   PENDING = "PENDING",
   SETTLED = "SETTLED",
 }
+
+export enum CouponType {
+  PERCENTAGE = "PERCENTAGE",
+  FIXED = "FIXED",
+  FLAT = "FLAT"
+}

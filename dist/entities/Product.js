@@ -13,7 +13,7 @@ exports.Product = void 0;
 const typeorm_1 = require("typeorm");
 const Category_1 = require("./Category");
 const enums_1 = require("../constants/enums");
-const ProductVarient_1 = require("./ProductVarient");
+const ProductVariant_1 = require("./ProductVariant");
 const ProductImage_1 = require("./ProductImage");
 let Product = class Product {
 };
@@ -38,8 +38,8 @@ __decorate([
     __metadata("design:type", String)
 ], Product.prototype, "seller_type", void 0);
 __decorate([
-    (0, typeorm_1.Column)("uuid"),
-    __metadata("design:type", String)
+    (0, typeorm_1.Column)("int", { nullable: true }),
+    __metadata("design:type", Number)
 ], Product.prototype, "seller_id", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => Category_1.Category),
@@ -61,7 +61,7 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Product.prototype, "is_active", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => ProductVarient_1.ProductVariant, (variant) => variant.product),
+    (0, typeorm_1.OneToMany)(() => ProductVariant_1.ProductVariant, (variant) => variant.product),
     __metadata("design:type", Array)
 ], Product.prototype, "variants", void 0);
 __decorate([

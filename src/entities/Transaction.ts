@@ -1,39 +1,67 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from "typeorm";
+// entities/Transaction.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from "typeorm";
+
 import { Order } from "./Order";
-import { SellerType, TransactionType } from "../constants/enums";
 
-export enum TransactionStatus {
-  PENDING = "PENDING",
-  SETTLED = "SETTLED",
-}
+import {
+  SellerType,
+  TransactionType,
+  TransactionStatus,
+} from "../constants/enums";
 
-@Entity()
+@Entity("transactions")
 export class Transaction {
   @PrimaryGeneratedColumn("uuid")
-  id: string;
+  transactionId: string;
 
   @Column({
     type: "enum",
     enum: SellerType,
   })
-  seller_type!: SellerType;
+  seller_type: SellerType;
 
-  @Column("uuid")
+  @Column("int", { nullable: true })
   seller_id: string;
 
-  @ManyToOne(() => Order, (order) => order.orderId, {
+  @ManyToOne(() => Order, (order) => order.transactions, {
     nullable: true,
     onDelete: "SET NULL",
   })
-  order!: Order;
+  order: Order;
 
   @Column({
     type: "enum",
     enum: TransactionType,
   })
-  type: TransactionType;
+  transaction_type: TransactionType;
 
-  @Column("decimal", { precision: 10, scale: 2 })
+  @Column({
+    nullable: true,
+  })
+  transaction_reference: string;
+
+  @Column({
+    nullable: true,
+  })
+  payment_gateway: string;
+
+  @Column({
+    nullable: true,
+  })
+  payment_method: string;
+
+  @Column("decimal", {
+    precision: 10,
+    scale: 2,
+  })
   amount: number;
 
   @Column({
@@ -41,7 +69,16 @@ export class Transaction {
     enum: TransactionStatus,
     default: TransactionStatus.PENDING,
   })
-  status: TransactionStatus;
+  transaction_status: TransactionStatus;
+
+  @Column({
+    type: "jsonb",
+    nullable: true,
+  })
+  gateway_response: Record<string, any>;
+
+  @Column({ default: true })
+  is_active: boolean;
 
   @Column()
   created_by: number;

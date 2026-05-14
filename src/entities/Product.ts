@@ -10,7 +10,7 @@ import {
 
 import { Category } from "./Category";
 import { SellerType } from "../constants/enums";
-import { ProductVariant } from "./ProductVarient";
+import { ProductVariant } from "./ProductVariant";
 import { ProductImage } from "./ProductImage";
 
 @Entity("products")
@@ -30,7 +30,7 @@ export class Product {
   })
   seller_type: SellerType;
 
-  @Column("int")
+  @Column("int", { nullable: true })
   seller_id: number;
 
   @ManyToOne(() => Category)
