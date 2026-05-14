@@ -1,14 +1,21 @@
 import "reflect-metadata";
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
+
 import { AppDataSource } from "./config/data-source";
 import routes from "./routes";
-
-
 
 dotenv.config();
 
 const app = express();
+
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
