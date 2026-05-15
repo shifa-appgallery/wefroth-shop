@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createCategory, deleteCategory, getCategories, updateCategory } from "../service/categoryService";
+import { createCategory, getCategories, updateCategory, updateCategoryStatus } from "../service/categoryService";
 import { AuthRequest } from "../middleware/authorization";
 
 export const createCategoryController = async (
@@ -8,9 +8,7 @@ export const createCategoryController = async (
 ) => {
   try {
     const userId = req.user.id;
-    console.log("userId",userId)
     const response = await createCategory(req.body, userId);
-console.log("response",response)
     return res.status(201).json({
       success: true,
       data: response,
@@ -24,17 +22,21 @@ console.log("response",response)
 };
 
 export const getCategoriesController = async (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ) => {
   try {
-    const response = await getCategories();
+    const isActive =
+      req.query.isActive === "true";
+      
+    const response = await getCategories(isActive);
 
     return res.status(200).json({
       success: true,
       data: response,
     });
   } catch (error: any) {
+
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -67,16 +69,19 @@ export const updateCategoryController = async (
   }
 };
 
-export const deleteCategoryController = async (
-  req: Request,
+export const updateCategoryStatusController = async (
+  req: AuthRequest,
   res: Response
 ) => {
   try {
-    await deleteCategory(Number(req.query.categoryId));
+    const isActive =
+      req.query.isActive === "true";
+    const userId = req.user.id;
+    await updateCategoryStatus(Number(req.query.categoryId), isActive, userId);
 
     return res.status(200).json({
       success: true,
-      message: "Category deleted successfully",
+      message: "Category updated successfully",
     });
   } catch (error: any) {
     return res.status(500).json({

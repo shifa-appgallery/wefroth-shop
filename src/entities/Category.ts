@@ -17,6 +17,9 @@ export class Category {
   @Column()
   categoryName: string;
 
+  @Column({ nullable: true })
+  categoryIcon:string;
+
   @Column({ unique: true })
   slug: string;
 
