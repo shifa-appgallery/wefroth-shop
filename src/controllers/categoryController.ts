@@ -26,9 +26,12 @@ export const getCategoriesController = async (
   res: Response
 ) => {
   try {
-    const isActive =
-      req.query.isActive === "true";
-      
+    let isActive: boolean | undefined;
+
+    if (req.query.isActive !== undefined) {
+      isActive = req.query.isActive === "true";
+    }
+
     const response = await getCategories(isActive);
 
     return res.status(200).json({
