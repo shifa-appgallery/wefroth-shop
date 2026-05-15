@@ -37,3 +37,8 @@ export enum CouponType {
   FIXED = "FIXED",
   FLAT = "FLAT"
 }
+
+export enum MediaType {
+  IMAGE = "IMAGE",
+  VIDEO = "VIDEO",
+}
