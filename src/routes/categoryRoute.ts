@@ -15,7 +15,7 @@ router.get("/get-category", verifyToken, (req: Request, res: Response) => {
 router.put("/update-category", verifyToken, (req: Request, res: Response) => {
     categoryController.updateCategoryController(req, res);
 });
-router.delete("/update-category-status", verifyToken, (req: Request, res: Response) => {
+router.put("/update-category-status", verifyToken, (req: Request, res: Response) => {
     categoryController.updateCategoryStatusController(req, res);
 });
 
