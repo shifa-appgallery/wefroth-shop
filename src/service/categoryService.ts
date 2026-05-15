@@ -108,10 +108,10 @@ export const updateCategory = async (
   const newSortOrder =
     body.sort_order ?? oldSortOrder;
 
-  // Handle sort order update
+  // If sort order changed
   if (oldSortOrder !== newSortOrder) {
 
-    // Moving up
+    // Move Up (10 -> 3)
     if (newSortOrder < oldSortOrder) {
 
       await categoryRepository
@@ -121,23 +121,21 @@ export const updateCategory = async (
           sort_order: () => `"sort_order" + 1`,
         })
         .where(
-          `"sort_order" >= :newSortOrder 
+          `"sort_order" >= :newSortOrder
            AND "sort_order" < :oldSortOrder`,
           {
             newSortOrder,
             oldSortOrder,
           }
         )
-        .andWhere(
-          `"categoryId" != :categoryId`,
-          { categoryId }
-        )
-        .andWhere(`is_active = true`)
+        .andWhere(`"categoryId" != :categoryId`, {
+          categoryId,
+        })
         .execute();
 
     }
 
-    // Moving down
+    // Move Down (3 -> 10)
     else {
 
       await categoryRepository
@@ -147,23 +145,21 @@ export const updateCategory = async (
           sort_order: () => `"sort_order" - 1`,
         })
         .where(
-          `"sort_order" <= :newSortOrder 
+          `"sort_order" <= :newSortOrder
            AND "sort_order" > :oldSortOrder`,
           {
             newSortOrder,
             oldSortOrder,
           }
         )
-        .andWhere(
-          `"categoryId" != :categoryId`,
-          { categoryId }
-        )
-        .andWhere(`is_active = true`)
+        .andWhere(`"categoryId" != :categoryId`, {
+          categoryId,
+        })
         .execute();
     }
   }
 
-  // Update category
+  // Update selected category at last
   await categoryRepository.update(categoryId, {
 
     categoryName:
@@ -188,7 +184,6 @@ export const updateCategory = async (
     relations: ["parent", "children"],
   });
 };
-
 
 export const updateCategoryStatus = async (
   categoryId: number,
