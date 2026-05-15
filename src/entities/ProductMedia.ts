@@ -8,28 +8,38 @@ import {
 } from "typeorm";
 
 import { Product } from "./Product";
+import { MediaType } from "../constants/enums";
 
-@Entity("product_images")
-export class ProductImage {
+@Entity("product_media")
+export class ProductMedia {
   @PrimaryGeneratedColumn("uuid")
-  imageId: string;
+  mediaId: string;
 
-  @ManyToOne(() => Product, (product) => product.images, {
+  @ManyToOne(() => Product, (product) => product.media, {
     onDelete: "CASCADE",
   })
   product: Product;
 
   @Column()
-  image_url: string;
+  media_url: string;
+
+  @Column({
+    type: "enum",
+    enum: MediaType,
+  })
+  media_type: MediaType;
 
   @Column({ default: 0 })
   sort_order: number;
 
-  @Column()
-  is_thumbnail: boolean
+  @Column({ default: false })
+  is_thumbnail: boolean;
 
-  @Column()
-  alt_text: string
+  @Column({ nullable: true })
+  alt_text: string;
+
+  @Column({ nullable: true })
+  video_thumbnail: string;
 
   @Column()
   created_by: number;

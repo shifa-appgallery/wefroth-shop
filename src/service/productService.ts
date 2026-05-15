@@ -22,7 +22,7 @@ export const createProduct = async (body: any, userId: number) => {
 
 export const getProducts = async () => {
   return await productRepository.find({
-    relations: ["category", "variants", "images"],
+    relations: ["category", "variants", "media"],
     where: {
       is_active: true,
     },

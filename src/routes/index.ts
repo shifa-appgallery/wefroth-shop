@@ -7,6 +7,7 @@ import cartRoutes from "./cartRoute";
 import couponRoutes from "./couponRoute";
 import orderRoutes from "./orderRoute";
 import shippingAddressRoutes from "./shippingAddressRoute";
+import productMediaRoutes from "./producMediaRoute";
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use("/cart", cartRoutes);
 router.use("/coupon", couponRoutes);
 router.use("/order", orderRoutes);
 router.use("/address", shippingAddressRoutes);
+router.use("/media", productMediaRoutes);
 
 export default router;

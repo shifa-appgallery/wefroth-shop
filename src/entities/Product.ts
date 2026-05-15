@@ -11,7 +11,7 @@ import {
 import { Category } from "./Category";
 import { SellerType } from "../constants/enums";
 import { ProductVariant } from "./ProductVariant";
-import { ProductImage } from "./ProductImage";
+import { ProductMedia } from "./ProductMedia";
 
 @Entity("products")
 export class Product {
@@ -51,9 +51,8 @@ export class Product {
   @OneToMany(() => ProductVariant, (variant) => variant.product)
   variants: ProductVariant[];
 
-  @OneToMany(() => ProductImage, (image) => image.product)
-  images: ProductImage[];
-
+  @OneToMany(() => ProductMedia, (media) => media.product)
+  media: ProductMedia[];
   @Column()
   created_by: number;
 
