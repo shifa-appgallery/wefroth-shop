@@ -15,7 +15,6 @@ export const createCategory = async (
     },
   });
 
-  // If category exists and inactive -> reactivate + update
   if (existingCategory && !existingCategory.is_active) {
 
     existingCategory.categoryName = body.categoryName ?? existingCategory.categoryName;
@@ -36,7 +35,6 @@ export const createCategory = async (
     return await categoryRepository.save(existingCategory);
   }
 
-  // If active category already exists
   if (existingCategory && existingCategory.is_active) {
     throw new Error("Category already exists");
   }
@@ -52,22 +50,43 @@ export const createCategory = async (
     sort_order: body.sort_order || 0,
     is_active: true,
     created_by: userId,
-    categoryIcon:body.categoryIcon
+    categoryIcon: body.categoryIcon
   });
 
   return await categoryRepository.save(category);
 };
-export const getCategories = async (isActive: boolean) => {
-  console.log("isActive",isActive)
-  return await categoryRepository.find({
-    relations: ["parent", "children"],
-    where: {
-      is_active: isActive,
-    },
-    order: {
-      sort_order: "ASC",
-    },
-  });
+export const getCategories = async (
+  isActive?: boolean
+) => {
+
+  const query = categoryRepository
+    .createQueryBuilder("category")
+    .leftJoinAndSelect(
+      "category.parent",
+      "parent"
+    )
+    .leftJoinAndSelect(
+      "category.children",
+      "children",
+      isActive !== undefined
+        ? "children.is_active = :isActive"
+        : "",
+      { isActive }
+    );
+
+  if (isActive !== undefined) {
+    query.where(
+      "category.is_active = :isActive",
+      { isActive }
+    );
+  }
+
+  query.orderBy(
+    "category.sort_order",
+    "ASC"
+  );
+
+  return await query.getMany();
 };
 
 export const updateCategory = async (
@@ -211,7 +230,6 @@ export const updateCategoryStatus = async (
       .execute();
   }
 
-  // If making active again
   if (isActive) {
 
     const maxSortOrder = await categoryRepository
