@@ -1,4 +1,5 @@
 import { AppDataSource } from "../config/data-source";
+import { CategoryType } from "../constants/enums";
 import { Category } from "../entities/Category";
 
 const categoryRepository = AppDataSource.getRepository(Category);
@@ -31,6 +32,7 @@ export const createCategory = async (
     existingCategory.updated_by = userId;
 
     existingCategory.categoryIcon = body.categoryIcon ?? existingCategory.categoryIcon
+    existingCategory.type = body.type ?? existingCategory.type
 
     return await categoryRepository.save(existingCategory);
   }
@@ -50,7 +52,8 @@ export const createCategory = async (
     sort_order: body.sort_order || 0,
     is_active: true,
     created_by: userId,
-    categoryIcon: body.categoryIcon
+    categoryIcon: body.categoryIcon,
+    type: body.type ?? CategoryType.ALL
   });
 
   return await categoryRepository.save(category);
@@ -103,62 +106,6 @@ export const updateCategory = async (
     throw new Error("Category not found");
   }
 
-  const oldSortOrder = existingCategory.sort_order;
-
-  const newSortOrder =
-    body.sort_order ?? oldSortOrder;
-
-  // If sort order changed
-  if (oldSortOrder !== newSortOrder) {
-
-    // Move Up (10 -> 3)
-    if (newSortOrder < oldSortOrder) {
-
-      await categoryRepository
-        .createQueryBuilder()
-        .update()
-        .set({
-          sort_order: () => `"sort_order" + 1`,
-        })
-        .where(
-          `"sort_order" >= :newSortOrder
-           AND "sort_order" < :oldSortOrder`,
-          {
-            newSortOrder,
-            oldSortOrder,
-          }
-        )
-        .andWhere(`"categoryId" != :categoryId`, {
-          categoryId,
-        })
-        .execute();
-
-    }
-
-    // Move Down (3 -> 10)
-    else {
-
-      await categoryRepository
-        .createQueryBuilder()
-        .update()
-        .set({
-          sort_order: () => `"sort_order" - 1`,
-        })
-        .where(
-          `"sort_order" <= :newSortOrder
-           AND "sort_order" > :oldSortOrder`,
-          {
-            newSortOrder,
-            oldSortOrder,
-          }
-        )
-        .andWhere(`"categoryId" != :categoryId`, {
-          categoryId,
-        })
-        .execute();
-    }
-  }
-
   // Update selected category at last
   await categoryRepository.update(categoryId, {
 
@@ -174,7 +121,7 @@ export const updateCategory = async (
       body.categoryIcon ??
       existingCategory.categoryIcon,
 
-    sort_order: newSortOrder,
+    type: body.type ?? existingCategory.type,
 
     updated_by: userId,
   });

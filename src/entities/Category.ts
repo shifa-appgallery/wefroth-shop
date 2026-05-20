@@ -8,6 +8,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { CategoryType } from "../constants/enums";
 
 @Entity("categories")
 export class Category {
@@ -18,7 +19,7 @@ export class Category {
   categoryName: string;
 
   @Column({ nullable: true })
-  categoryIcon:string;
+  categoryIcon: string;
 
   @Column({ unique: true })
   slug: string;
@@ -31,6 +32,13 @@ export class Category {
 
   @Column({ default: 0 })
   sort_order: number;
+
+  @Column({
+    type: "enum",
+    enum: CategoryType,
+    default: CategoryType.ALL,
+  })
+  type: CategoryType;
 
   @CreateDateColumn()
   created_at: Date;

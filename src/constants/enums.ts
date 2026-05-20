@@ -51,3 +51,9 @@ export enum Gender {
   ALL = "ALL",
   KIDS = "KIDS"
 }
+export enum CategoryType {
+  MEN = "MEN",
+  WOMEN = "WOMEN",
+  KIDS = "KIDS",
+  ALL = "ALL",
+}
