@@ -245,3 +245,44 @@ export const updateCategoryStatus = async (
 
   return category;
 };
+
+export const updateCategoryOrder = async (
+  data: any[],
+  userId: number
+) => {
+
+  if (!Array.isArray(data) || data.length === 0) {
+    throw new Error("Invalid data");
+  }
+
+  // Optional validation
+  for (const item of data) {
+
+    if (!item.categoryId || item.sort_order == null) {
+      throw new Error(
+        "categoryId and sort_order are required"
+      );
+    }
+  }
+
+  // Update all categories
+  await Promise.all(
+
+    data.map(async (item) => {
+
+      await categoryRepository.update(
+        item.categoryId,
+        {
+          sort_order: item.sort_order,
+          updated_by: userId,
+        }
+      );
+    })
+  );
+
+  return await categoryRepository.find({
+    order: {
+      sort_order: "ASC",
+    },
+  });
+};

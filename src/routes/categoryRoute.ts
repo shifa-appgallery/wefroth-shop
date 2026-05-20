@@ -18,5 +18,8 @@ router.put("/update-category", verifyToken, (req: Request, res: Response) => {
 router.put("/update-category-status", verifyToken, (req: Request, res: Response) => {
     categoryController.updateCategoryStatusController(req, res);
 });
+router.put("/update-category-order", verifyToken, (req: Request, res: Response) => {
+    categoryController.updateCategoryOrderController(req, res);
+});
 
 export default router;

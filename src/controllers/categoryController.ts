@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createCategory, getCategories, updateCategory, updateCategoryStatus } from "../service/categoryService";
+import { createCategory, getCategories, updateCategory, updateCategoryOrder, updateCategoryStatus } from "../service/categoryService";
 import { AuthRequest } from "../middleware/authorization";
 
 export const createCategoryController = async (
@@ -87,6 +87,42 @@ export const updateCategoryStatusController = async (
       message: "Category updated successfully",
     });
   } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateCategoryOrderController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+
+    const userId = Number(req.user?.id);
+
+    const categoryOrder = req.body.categoryOrder;
+
+    if (!Array.isArray(categoryOrder) || categoryOrder.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid request body",
+      });
+    }
+
+     await updateCategoryOrder(
+      categoryOrder,
+      userId
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Category order updated successfully",
+    });
+
+  } catch (error: any) {
+
     return res.status(500).json({
       success: false,
       message: error.message,
