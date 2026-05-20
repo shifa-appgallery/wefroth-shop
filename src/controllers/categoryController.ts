@@ -27,7 +27,15 @@ export const getCategoriesController = async (
 ) => {
   try {
     let isActive: boolean | undefined;
-    const type = String(req.query.type);
+    let type: string | undefined;
+
+    if (req.query.isActive !== undefined) {
+      isActive = req.query.isActive === "true";
+    }
+
+    if (req.query.type) {
+      type = String(req.query.type);
+    }
 
     if (req.query.isActive !== undefined) {
       isActive = req.query.isActive === "true";
