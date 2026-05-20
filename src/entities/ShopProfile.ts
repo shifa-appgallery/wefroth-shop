@@ -16,6 +16,9 @@ export class ShopProfile {
   @Column("int", { nullable: true })
   seller_id: number;
 
+  @Column("int", { nullable: true })
+  teamId: number;
+
   @Column()
   display_name: string;
 

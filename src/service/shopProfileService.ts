@@ -25,6 +25,7 @@ export const createShopProfile = async (
 
     // user id from token
     seller_id: userId,
+    teamId: body.teamId,
 
     display_name: body.display_name,
     banner_url: body.banner_url,
@@ -62,6 +63,7 @@ export const updateShopProfile = async (
       banner_url: body.banner_url,
       logo_url: body.logo_url,
       theme_color: body.theme_color,
+      teamId: body.teamId,
 
       updated_by: userId,
     }

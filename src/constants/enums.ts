@@ -42,3 +42,12 @@ export enum MediaType {
   IMAGE = "IMAGE",
   VIDEO = "VIDEO",
 }
+
+// constants/enums.ts
+
+export enum Gender {
+  MALE = "MEN",
+  FEMALE = "WOMEN",
+  ALL = "ALL",
+  KIDS = "KIDS"
+}

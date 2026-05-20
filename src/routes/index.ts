@@ -8,6 +8,7 @@ import couponRoutes from "./couponRoute";
 import orderRoutes from "./orderRoute";
 import shippingAddressRoutes from "./shippingAddressRoute";
 import productMediaRoutes from "./producMediaRoute";
+import productReviewRoutes from "./productReviewRoute"
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use("/coupon", couponRoutes);
 router.use("/order", orderRoutes);
 router.use("/address", shippingAddressRoutes);
 router.use("/media", productMediaRoutes);
+router.use("/review", productReviewRoutes);
 
 export default router;

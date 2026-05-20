@@ -9,7 +9,7 @@ import {
 } from "typeorm";
 
 import { Category } from "./Category";
-import { SellerType } from "../constants/enums";
+import { Gender, SellerType } from "../constants/enums";
 import { ProductVariant } from "./ProductVariant";
 import { ProductMedia } from "./ProductMedia";
 
@@ -41,6 +41,13 @@ export class Product {
     scale: 2,
   })
   base_price: number;
+
+  @Column({
+    type: "enum",
+    enum: Gender,
+    default: Gender.ALL
+  })
+  gender: Gender;
 
   @Column({ default: "AUD" })
   currency: string;
