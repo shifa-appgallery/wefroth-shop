@@ -59,7 +59,7 @@ export const createCategory = async (
   return await categoryRepository.save(category);
 };
 export const getCategories = async (
-  isActive?: boolean
+  isActive?: boolean, type?: string
 ) => {
 
   const query = categoryRepository
@@ -81,6 +81,16 @@ export const getCategories = async (
     query.where(
       "category.is_active = :isActive",
       { isActive }
+    );
+  }
+  if (
+    type &&
+    type !== "ALL"
+  ) {
+
+    query.andWhere(
+      "category.type = :type",
+      { type }
     );
   }
 

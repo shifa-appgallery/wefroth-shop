@@ -27,12 +27,13 @@ export const getCategoriesController = async (
 ) => {
   try {
     let isActive: boolean | undefined;
+    const type = String(req.query.type);
 
     if (req.query.isActive !== undefined) {
       isActive = req.query.isActive === "true";
     }
 
-    const response = await getCategories(isActive);
+    const response = await getCategories(isActive, type);
 
     return res.status(200).json({
       success: true,
@@ -111,7 +112,7 @@ export const updateCategoryOrderController = async (
       });
     }
 
-     await updateCategoryOrder(
+    await updateCategoryOrder(
       categoryOrder,
       userId
     );
