@@ -21,7 +21,7 @@ export class ProductReview {
   })
   product: Product;
 
-  @Column("uuid")
+  @Column("int")
   user_id: string;
 
   @Column({
