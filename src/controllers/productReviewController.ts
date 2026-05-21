@@ -56,7 +56,7 @@ export const createProductReview = async (
                     product: {
                         productId
                     },
-                    user_id: String(userId)
+                    user_id: Number(userId)
                 },
                 relations: ["product"]
             });
@@ -75,7 +75,7 @@ export const createProductReview = async (
                     productId
                 },
 
-                user_id: String(userId),
+                user_id: Number(userId),
 
                 rating,
 

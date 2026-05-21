@@ -13,6 +13,7 @@ import { SellerType } from "../constants/enums";
 import { ProductVariant } from "./ProductVariant";
 import { ProductMedia } from "./ProductMedia";
 import { Gender } from "./Gender";
+import { ProductReview } from "./ProductReview";
 
 @Entity("products")
 export class Product {
@@ -58,6 +59,13 @@ export class Product {
 
   @OneToMany(() => ProductMedia, (media) => media.product)
   media: ProductMedia[];
+
+  @OneToMany(
+    () => ProductReview,
+    (review) => review.product
+  )
+  reviews: ProductReview[];
+
   @Column()
   created_by: number;
 

@@ -22,7 +22,7 @@ export class ProductReview {
   product: Product;
 
   @Column("int")
-  user_id: string;
+  user_id: number;
 
   @Column({
     type: "int",

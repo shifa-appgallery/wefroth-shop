@@ -82,6 +82,8 @@ export const getProducts = async () => {
       "variants.color",
       "variants.size",
       "media",
+      "reviews"
+
     ],
     where: {
       is_active: true,
