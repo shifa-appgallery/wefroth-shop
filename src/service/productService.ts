@@ -78,6 +78,9 @@ export const getProducts = async () => {
       "category",
       "gender",
       "variants",
+      "variants.variantImages",
+      "variants.color",
+      "variants.size",
       "media",
     ],
     where: {
