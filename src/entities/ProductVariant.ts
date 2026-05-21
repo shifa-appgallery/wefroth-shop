@@ -25,13 +25,15 @@ export class ProductVariant {
 
   @ManyToOne(() => Color, {
     eager: true,
+    nullable: true,
   })
-  color: Color;
+  color: Color | null;
 
   @ManyToOne(() => Size, {
     eager: true,
+    nullable: true,
   })
-  size: Size;
+  size: Size | null;
 
   @Column()
   name: string;

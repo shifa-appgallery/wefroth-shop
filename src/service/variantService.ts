@@ -25,47 +25,82 @@ export const createVariant = async (
     throw new Error("Product not found");
   }
 
-  // check color
-  const existingColor = await colorRepository.findOne({
-    where: {
-      colorId: body.colorId,
-    },
-  });
+  let existingColor = null;
+  let existingSize = null;
 
-  if (!existingColor) {
-    throw new Error("Color not found");
+  // OPTIONAL COLOR
+  if (body.colorId) {
+
+    existingColor = await colorRepository.findOne({
+      where: {
+        colorId: body.colorId,
+      },
+    });
+
+    if (!existingColor) {
+      throw new Error("Color not found");
+    }
   }
 
-  // check size
-  const existingSize = await sizeRepository.findOne({
-    where: {
-      sizeId: body.sizeId,
-    },
-  });
+  // OPTIONAL SIZE
+  if (body.sizeId) {
 
-  if (!existingSize) {
-    throw new Error("Size not found");
+    existingSize = await sizeRepository.findOne({
+      where: {
+        sizeId: body.sizeId,
+      },
+    });
+
+    if (!existingSize) {
+      throw new Error("Size not found");
+    }
   }
+
+  // AUTO GENERATE NAME
+  const variantName = [
+    existingProduct.productName,
+    existingColor?.name,
+    existingSize?.name,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  // AUTO GENERATE SKU
+  const sku = [
+    `PRD-${existingProduct.productId}`,
+    existingColor?.name?.substring(0, 3),
+    existingSize?.name,
+  ]
+    .filter(Boolean)
+    .join("-")
+    .toUpperCase();
 
   // check sku duplicate
   const existingSku = await variantRepository.findOne({
     where: {
-      sku: body.sku,
+      sku,
     },
   });
 
   if (existingSku) {
-    throw new Error("SKU already exists");
+    throw new Error("Variant already exists");
   }
 
   const variant = variantRepository.create({
     product: existingProduct,
-    color: existingColor,
-    size: existingSize,
-    name: body.name,
-    sku: body.sku,
+
+    color: existingColor || null,
+
+    size: existingSize || null,
+
+    name: variantName,
+
+    sku,
+
     price: body.price,
+
     stock: body.stock,
+
     created_by: userId,
   });
 
