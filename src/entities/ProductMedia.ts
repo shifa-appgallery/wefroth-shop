@@ -12,8 +12,8 @@ import { MediaType } from "../constants/enums";
 
 @Entity("product_media")
 export class ProductMedia {
-  @PrimaryGeneratedColumn("uuid")
-  mediaId: string;
+  @PrimaryGeneratedColumn()
+  mediaId: number;
 
   @ManyToOne(() => Product, (product) => product.media, {
     onDelete: "CASCADE",

@@ -63,7 +63,7 @@ export const updateShopProfileController = async (
     const userId = Number(req.user.id);
 
     const response = await updateShopProfile(
-      String(req.query.shopProfileId),
+      Number(req.query.shopProfileId),
       req.body,
       userId
     );

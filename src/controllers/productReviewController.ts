@@ -148,7 +148,7 @@ export const getProductReviewById = async (
 ) => {
     try {
 
-        const reviewId = String(req.query.reviewId);
+        const reviewId = Number(req.query.reviewId);
 
         const review =
             await productReviewRepository.findOne({
@@ -187,7 +187,7 @@ export const updateProductReview = async (
 ) => {
     try {
 
-        const reviewId = String(req.query.reviewId);
+        const reviewId = Number(req.query.reviewId);
 
         const {
             rating,
@@ -260,7 +260,7 @@ export const deleteProductReview = async (
 ) => {
     try {
 
-        const reviewId = String(req.query.reviewId);
+        const reviewId = Number(req.query.reviewId);
 
         const existingReview =
             await productReviewRepository.findOne({

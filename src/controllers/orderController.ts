@@ -48,7 +48,7 @@ export const getOrderByIdController = async (
   res: Response
 ) => {
   try {
-    const response = await getOrderById(String(req.query.orderId));
+    const response = await getOrderById(Number(req.query.orderId));
 
     return res.status(200).json({
       success: true,
@@ -70,7 +70,7 @@ export const updateOrderStatusController = async (
     const userId = req.user.id;
 
     const response = await updateOrderStatus(
-      String(req.query.orderId),
+      Number(req.query.orderId),
       req.body,
       userId
     );

@@ -49,7 +49,7 @@ export const updateVariantController = async (
     const userId = req.user.id;
 
     const response = await updateVariant(
-      req.params.variantId as string,
+      Number(req.query.variantId),
       req.body,
       userId
     );

@@ -13,8 +13,8 @@ import { CartItem } from "./CartItems";
 
 @Entity("cart")
 export class Cart {
-  @PrimaryGeneratedColumn("uuid")
-  cartId: string;
+  @PrimaryGeneratedColumn()
+  cartId: number;
 
   @Column("int")
   user_id: string;

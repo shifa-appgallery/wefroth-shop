@@ -13,8 +13,8 @@ import { Product } from "./Product";
 
 @Entity("wishlist")
 export class Wishlist {
-  @PrimaryGeneratedColumn("uuid")
-  wishlistId: string;
+  @PrimaryGeneratedColumn()
+  wishlistId: number;
 
   @Column("uuid")
   user_id: string;

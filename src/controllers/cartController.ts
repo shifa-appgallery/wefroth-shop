@@ -50,7 +50,7 @@ export const updateCartItemController = async (
     const userId = req.user.id;
 
     const response = await updateCartItem(
-      String(req.query.cartItemId),
+      Number(req.query.cartItemId),
       req.body,
       userId
     );

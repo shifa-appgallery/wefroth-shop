@@ -13,8 +13,8 @@ import { Product } from "./Product";
 
 @Entity("product_reviews")
 export class ProductReview {
-  @PrimaryGeneratedColumn("uuid")
-  reviewId: string;
+  @PrimaryGeneratedColumn()
+  reviewId: number;
 
   @ManyToOne(() => Product, {
     onDelete: "CASCADE",

@@ -48,7 +48,7 @@ export const updateCouponController = async (
         const userId = req.user.id;
 
         const response = await updateCoupon(
-            String(req.query.couponId),
+            Number(req.query.couponId),
             req.body,
             userId
         );

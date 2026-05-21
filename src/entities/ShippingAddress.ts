@@ -10,8 +10,8 @@ import {
 
 @Entity("shipping_addresses")
 export class ShippingAddress {
-  @PrimaryGeneratedColumn("uuid")
-  shippingAddressId: string;
+  @PrimaryGeneratedColumn()
+  shippingAddressId: number;
 
   @Column("int")
   user_id: number;

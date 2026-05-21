@@ -22,11 +22,11 @@ import {
 
 @Entity("orders")
 export class Order {
-  @PrimaryGeneratedColumn("uuid")
-  orderId: string;
+  @PrimaryGeneratedColumn()
+  orderId: number;
 
   @Column("int")
-  user_id: string;
+  user_id: number;
 
   @Column({
     unique: true,

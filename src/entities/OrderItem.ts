@@ -15,8 +15,8 @@ import { SellerType } from "../constants/enums";
 
 @Entity("order_items")
 export class OrderItem {
-  @PrimaryGeneratedColumn("uuid")
-  orderItemId: string;
+  @PrimaryGeneratedColumn()
+  orderItemId: number;
 
   @ManyToOne(() => Order, (order) => order.items, {
     onDelete: "CASCADE",

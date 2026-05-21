@@ -82,7 +82,7 @@ export const getCart = async (userId: number) => {
     });
 }
 
-export const updateCartItem = async (cartItemId: string, body: any, userId: number) => {
+export const updateCartItem = async (cartItemId: number, body: any, userId: number) => {
     const cartItem = await cartItemRepository.findOne({
         where: {
             cartItemId

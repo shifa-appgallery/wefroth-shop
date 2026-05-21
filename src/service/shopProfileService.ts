@@ -51,7 +51,7 @@ export const getShopProfiles = async () => {
 };
 
 export const updateShopProfile = async (
-  shopProfileId: string,
+  shopProfileId: number,
   body: any,
   userId: number
 ) => {

@@ -9,14 +9,15 @@ import {
 } from "typeorm";
 
 import { Category } from "./Category";
-import { Gender, SellerType } from "../constants/enums";
+import { SellerType } from "../constants/enums";
 import { ProductVariant } from "./ProductVariant";
 import { ProductMedia } from "./ProductMedia";
+import { Gender } from "./Gender";
 
 @Entity("products")
 export class Product {
-  @PrimaryGeneratedColumn("uuid")
-  productId: string;
+  @PrimaryGeneratedColumn()
+  productId: number;
 
   @Column()
   productName: string;
@@ -42,13 +43,10 @@ export class Product {
   })
   base_price: number;
 
-  @Column({
-    type: "enum",
-    enum: Gender,
-    default: Gender.ALL
+  @ManyToOne(() => Gender, {
+    eager: true,
   })
   gender: Gender;
-
   @Column({ default: "AUD" })
   currency: string;
 

@@ -12,8 +12,8 @@ import { CouponType } from "../constants/enums";
 
 @Entity("coupons")
 export class Coupon {
-  @PrimaryGeneratedColumn("uuid")
-  couponId: string;
+  @PrimaryGeneratedColumn()
+  couponId: number;
 
   @Column({ unique: true })
   code: string;

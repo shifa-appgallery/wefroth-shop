@@ -82,7 +82,7 @@ export const getAllProductMedia = async (req: AuthRequest, res: Response) => {
 export const getProductMediaById = async (req: AuthRequest, res: Response) => {
     try {
         const { mediaId } = req.query;
-        let productMediaId = String(mediaId);
+        let productMediaId = Number(mediaId);
 
         const media = await mediaRepository.findOne({
             where: { mediaId: productMediaId },
@@ -119,7 +119,7 @@ export const updateProductMedia = async (
 ) => {
     try {
         const { mediaId } = req.query;
-        let productMediaId = String(mediaId);
+        let productMediaId = Number(mediaId);
 
         const userId = req.user.id;
 
@@ -161,7 +161,7 @@ export const deleteProductMedia = async (
 ) => {
     try {
         const { mediaId } = req.query;
-        let productMediaId = String(mediaId);
+        let productMediaId = Number(mediaId);
 
         const media = await mediaRepository.findOne({
             where: { mediaId: productMediaId },

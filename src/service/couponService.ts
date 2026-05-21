@@ -32,7 +32,7 @@ export const getCoupons = async () => {
 };
 
 export const updateCoupon = async (
-    couponId: string,
+    couponId: number,
     body: any,
     userId: number
 ) => {

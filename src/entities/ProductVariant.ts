@@ -5,19 +5,33 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from "typeorm";
 
 import { Product } from "./Product";
+import { VariantImage } from "./VanriantImage";
+import { Color } from "./Color";
+import { Size } from "./Size";
 
 @Entity("product_variants")
 export class ProductVariant {
-  @PrimaryGeneratedColumn("uuid")
-  variantId: string;
+  @PrimaryGeneratedColumn()
+  variantId: number;
 
   @ManyToOne(() => Product, (product) => product.variants, {
     onDelete: "CASCADE",
   })
   product: Product;
+
+  @ManyToOne(() => Color, {
+    eager: true,
+  })
+  color: Color;
+
+  @ManyToOne(() => Size, {
+    eager: true,
+  })
+  size: Size;
 
   @Column()
   name: string;
@@ -34,11 +48,14 @@ export class ProductVariant {
   @Column({ default: 0 })
   stock: number;
 
-  @Column({
-    type: "jsonb",
-    nullable: true,
-  })
-  attributes: Record<string, any>;
+  @OneToMany(
+    () => VariantImage,
+    (variantImage) => variantImage.variant,
+    {
+      cascade: true,
+    }
+  )
+  variantImages: VariantImage[];
 
   @Column()
   created_by: number;

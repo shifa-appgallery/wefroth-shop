@@ -30,7 +30,7 @@ export const getMyAddressess = async (userId: number) => {
     });
 };
 
-export const getAddressById = async (shippingAddressId: string, userId: number) => {
+export const getAddressById = async (shippingAddressId: number, userId: number) => {
     return await shippingAddresRepository.findOne({
         where: {
             shippingAddressId: shippingAddressId,
@@ -39,7 +39,7 @@ export const getAddressById = async (shippingAddressId: string, userId: number) 
     });
 };
 export const updateAddress = async (
-  id: string,
+  id: number,
   body: any,
   userId: number
 ) => {
@@ -55,14 +55,14 @@ export const updateAddress = async (
   return await shippingAddresRepository.save(address);
 };
 
-export const deleteAddress = async (id: string, userId: number) => {
+export const deleteAddress = async (id: number, userId: number) => {
   return await shippingAddresRepository.update(
     { shippingAddressId: id, user_id: userId },
     { is_active: false }
   );
 };
 
-export const setDefaultAddress = async (id: string, userId: number) => {
+export const setDefaultAddress = async (id: number, userId: number) => {
   // unset all
   await shippingAddresRepository.update(
     { user_id: userId },

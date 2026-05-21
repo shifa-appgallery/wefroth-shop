@@ -90,7 +90,7 @@ export const createOrder = async (
     const totalAmount =
         subtotal - discountAmount + shippingAmount + taxAmount;
     const order = orderRepository.create({
-        user_id: String(userId),
+        user_id: userId,
         order_number: `ORD-${Date.now()}`,
         shipping_address: shippingAddress || null,
         coupon,
@@ -121,7 +121,7 @@ export const createOrder = async (
 export const getOrders = async (userId: number) => {
     return await orderRepository.find({
         where: {
-            user_id: String(userId),
+            user_id: userId,
             is_active: true,
         },
         relations: ["items", "transactions"],
@@ -131,7 +131,7 @@ export const getOrders = async (userId: number) => {
     });
 };
 
-export const getOrderById = async (orderId: string) => {
+export const getOrderById = async (orderId: number) => {
     return await orderRepository.findOne({
         where: {
             orderId,
@@ -141,7 +141,7 @@ export const getOrderById = async (orderId: string) => {
 };
 
 export const updateOrderStatus = async (
-    orderId: string,
+    orderId: number,
     body: any,
     userId: number
 ) => {

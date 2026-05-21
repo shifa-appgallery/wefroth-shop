@@ -4,8 +4,8 @@ import { SellerType } from "../constants/enums";
 @Entity()
 @Unique(["seller_type", "seller_id"])
 export class ShopProfile {
-  @PrimaryGeneratedColumn("uuid")
-  shopProfileId: string;
+  @PrimaryGeneratedColumn()
+  shopProfileId: number;
 
   @Column({
     type: "enum",

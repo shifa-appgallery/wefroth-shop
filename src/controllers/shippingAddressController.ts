@@ -34,7 +34,7 @@ export const getMyAddress = async (req: AuthRequest, res: Response) => {
 
 export const getMyAddressById = async (req: AuthRequest, res: Response) => {
     try {
-        const data = await getAddressById(String(req.query.shippingAddressId), req.user.id);
+        const data = await getAddressById(Number(req.query.shippingAddressId), req.user.id);
         return res.status(200).json
             ({
                 success: true,
@@ -53,7 +53,7 @@ export const getMyAddressById = async (req: AuthRequest, res: Response) => {
 export const updateMyAddress = async (req: AuthRequest, res: Response) => {
     try {
         const data = await updateAddress(
-            String(req.query.shippingAddressId),
+            Number(req.query.shippingAddressId),
             req.body,
             req.user.id
         );
@@ -73,7 +73,7 @@ export const updateMyAddress = async (req: AuthRequest, res: Response) => {
 
 export const removeAddress = async (req: AuthRequest, res: Response) => {
     try {
-        const data = await deleteAddress(String(req.query.shippingAddressId), req.user.id);
+        const data = await deleteAddress(Number(req.query.shippingAddressId), req.user.id);
         return res.status(200).json
             ({
                 success: true,
@@ -92,7 +92,7 @@ export const removeAddress = async (req: AuthRequest, res: Response) => {
 export const setDefault = async (req: AuthRequest, res: Response) => {
     try {
         const data = await setDefaultAddress(
-            String(req.query.shippingAddressId),
+            Number(req.query.shippingAddressId),
             req.user.id
         );
          return res.status(200).json

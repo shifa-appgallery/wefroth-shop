@@ -19,8 +19,8 @@ import {
 
 @Entity("transactions")
 export class Transaction {
-  @PrimaryGeneratedColumn("uuid")
-  transactionId: string;
+  @PrimaryGeneratedColumn()
+  transactionId: number;
 
   @Column({
     type: "enum",

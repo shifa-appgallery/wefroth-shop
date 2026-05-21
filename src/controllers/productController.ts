@@ -48,7 +48,7 @@ export const updateProductController = async (
         const userId = req.user.id;
 
         const response = await updateProduct(
-            req.query.productId as string,
+            Number(req.query.productId),
             req.body,
             userId
         );
