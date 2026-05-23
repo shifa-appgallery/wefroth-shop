@@ -37,7 +37,11 @@ export const getShopProfilesController = async (
 ) => {
   try {
 
-    const response = await getShopProfiles();
+     const teamId = req.query.teamId
+      ? parseInt(req.query.teamId as string)
+      : undefined;
+
+    const response = await getShopProfiles(teamId);
 
     return res.status(200).json({
       success: true,
