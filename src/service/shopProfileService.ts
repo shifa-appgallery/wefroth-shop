@@ -38,12 +38,18 @@ export const createShopProfile = async (
   return await shopProfileRepository.save(shopProfile);
 };
 
-export const getShopProfiles = async () => {
+export const getShopProfiles = async (teamId?: number) => {
+
+  const whereCondition: any = {
+    is_active: true,
+  };
+
+  if (teamId) {
+    whereCondition.teamId = teamId;
+  }
 
   return await shopProfileRepository.find({
-    where: {
-      is_active: true,
-    },
+    where: whereCondition,
     order: {
       created_at: "DESC",
     },
