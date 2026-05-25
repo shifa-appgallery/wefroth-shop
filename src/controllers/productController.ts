@@ -26,7 +26,15 @@ export const getProductsController = async (
     res: Response
 ) => {
     try {
-        const response = await getProducts();
+
+        const {
+            offset = 0,
+            limit = 10,
+        } = req.query;
+        const response = await getProducts(
+            Number(offset),
+            Number(limit)
+        );
 
         return res.status(200).json({
             success: true,

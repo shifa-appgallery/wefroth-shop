@@ -348,24 +348,40 @@ export const createProduct = async (
   }
 };
 
-export const getProducts = async () => {
+export const getProducts = async (
+  offset: number,
+  limit: number
+) => {
 
-  return await productRepository.find({
-    relations: [
-      "category",
-      "gender",
-      "variants",
-      "variants.variantImages",
-      "variants.color",
-      "variants.size",
-      "media",
-      "reviews"
+  const [products, total] =
+    await productRepository.findAndCount({
 
-    ],
-    where: {
-      is_active: true,
-    },
-  });
+      relations: [
+        "category",
+        "gender",
+        "variants",
+        "variants.variantImages",
+        "variants.color",
+        "variants.size",
+        "media",
+        "reviews"
+      ],
+
+      where: {
+        is_active: true,
+      },
+
+      skip: offset,
+
+      take: limit,
+    });
+
+  return {
+    total,
+    offset,
+    limit,
+    data: products,
+  };
 
 };
 
