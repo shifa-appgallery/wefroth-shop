@@ -6,13 +6,15 @@ import { OrderItem } from "../entities/OrderItem";
 import { Product } from "../entities/Product";
 import { ProductMedia } from "../entities/ProductMedia";
 import { ProductVariant } from "../entities/ProductVariant";
+import { ShopProfile } from "../entities/ShopProfile";
 import { Size } from "../entities/Size";
 import { VariantImage } from "../entities/VanriantImage";
 
 const productRepository = AppDataSource.getRepository(Product);
 const categoryRepository = AppDataSource.getRepository(Category);
 const genderRepository = AppDataSource.getRepository(Gender);
-const orderItemRepository = AppDataSource.getRepository(OrderItem)
+const orderItemRepository = AppDataSource.getRepository(OrderItem);
+const shopProfileRepository = AppDataSource.getRepository(ShopProfile)
 
 export const createProduct = async (
   body: any,
@@ -468,49 +470,146 @@ export const deleteProduct = async (productId: string) => {
   return true;
 };
 
-export const getProductDetails = async () => {
+export const getProductDetails = async ({
+  teamId,
+  searchTerm,
+  categoryName,
+  page,
+  limit,
+}: any) => {
 
-  const products = await productRepository.find({
+
+  const shopProfile = await shopProfileRepository.findOne({
     where: {
+      teamId,
       is_active: true,
     },
-    relations: [
-      "category",
-      "gender",
-      "variants",
-      "variants.variantImages",
-      "variants.color",
-      "variants.size",
-      "media",
-      "reviews",
-    ],
   });
+
+  if (!shopProfile) {
+    throw new Error("Shop profile not found");
+  }
+
+
+  const skip = (page - 1) * limit;
+
+  const query = productRepository
+    .createQueryBuilder("product")
+
+    .leftJoinAndSelect(
+      "product.category",
+      "category"
+    )
+
+    .leftJoinAndSelect(
+      "product.gender",
+      "gender"
+    )
+
+    .leftJoinAndSelect(
+      "product.variants",
+      "variants"
+    )
+
+    .leftJoinAndSelect(
+      "variants.variantImages",
+      "variantImages"
+    )
+
+    .leftJoinAndSelect(
+      "variants.color",
+      "color"
+    )
+
+    .leftJoinAndSelect(
+      "variants.size",
+      "size"
+    )
+
+    .leftJoinAndSelect(
+      "product.media",
+      "media"
+    )
+
+    .leftJoinAndSelect(
+      "product.reviews",
+      "reviews"
+    )
+
+    .where("product.is_active = :is_active", {
+      is_active: true,
+    })
+
+    .andWhere(
+      "product.seller_id = :seller_id",
+      {
+        seller_id: shopProfile.seller_id,
+      }
+    )
+
+    .andWhere(
+      "product.seller_type = :seller_type",
+      {
+        seller_type: shopProfile.seller_type,
+      }
+    );
+
+  if (searchTerm) {
+
+    query.andWhere(
+      "LOWER(product.productName) LIKE LOWER(:searchTerm)",
+      {
+        searchTerm: `%${searchTerm}%`,
+      }
+    );
+
+  }
+
+  if (categoryName) {
+
+    query.andWhere(
+      "LOWER(category.categoryName) = LOWER(:categoryName)",
+      {
+        categoryName,
+      }
+    );
+
+  }
+
+  query.skip(skip).take(limit);
+
+
+  const [products, total] =
+    await query.getManyAndCount();
 
   const updatedProducts = await Promise.all(
     products.map(async (product: any) => {
 
-      // =========================
-      // Total Stock
-      // =========================
+      const totalStock =
+        product.variants.reduce(
+          (sum: number, variant: any) =>
+            sum + Number(variant.stock || 0),
+          0
+        );
 
-      const totalStock = product.variants.reduce(
-        (sum: number, variant: any) =>
-          sum + Number(variant.stock || 0),
-        0
-      );
-
-      // =========================
-      // Total Sold + Revenue
-      // =========================
-
-      const salesData = await orderItemRepository
-        .createQueryBuilder("oi")
-        .select("SUM(oi.quantity)", "totalSold")
-        .addSelect("SUM(oi.total_price)", "revenue")
-        .where("oi.product = :productId", {
-          productId: product.productId,
-        })
-        .getRawOne();
+      const salesData =
+        await orderItemRepository
+          .createQueryBuilder("oi")
+          .select(
+            "SUM(oi.quantity)",
+            "totalSold"
+          )
+          .addSelect(
+            "SUM(oi.total_price)",
+            "revenue"
+          )
+          .where(
+            "oi.product = :productId",
+            {
+              productId: product.productId,
+            }
+          )
+          .getRawOne();
 
       return {
         ...product,
@@ -525,8 +624,16 @@ export const getProductDetails = async () => {
           salesData?.revenue || 0
         ),
       };
+
     })
   );
 
-  return updatedProducts;
+  return {
+    total,
+    currentPage: page,
+    totalPages: Math.ceil(total / limit),
+    limit,
+
+    data: updatedProducts,
+  };
 };

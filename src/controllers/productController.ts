@@ -8,7 +8,7 @@ export const createProductController = async (
     try {
         const userId = req.user.id;
 
-        const response = await createProduct(req.body,userId);
+        const response = await createProduct(req.body, userId);
 
         return res.status(201).json({
             success: true,
@@ -89,16 +89,34 @@ export const getProductsDetailsController = async (
     res: Response
 ) => {
     try {
-        const response = await getProductDetails();
+
+        const {
+            teamId,
+            searchTerm,
+            categoryName,
+            page = 1,
+            limit = 10,
+        } = req.query;
+
+        const response = await getProductDetails({
+            teamId: Number(teamId),
+            searchTerm: String(searchTerm || ""),
+            categoryName: String(categoryName || ""),
+            page: Number(page),
+            limit: Number(limit),
+        });
 
         return res.status(200).json({
             success: true,
-            data: response,
+            ...response,
         });
+
     } catch (error: any) {
+
         return res.status(500).json({
             success: false,
             message: error.message,
         });
+
     }
 };
