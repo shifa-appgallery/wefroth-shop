@@ -7,55 +7,75 @@ import { Product } from "../entities/Product";
 const mediaRepository = AppDataSource.getRepository(ProductMedia);
 const productRepository = AppDataSource.getRepository(Product);
 
-export const createProductMedia = async (req: AuthRequest, res: Response) => {
-    try {
-        const {
-            productId,
-            media_url,
-            media_type,
-            sort_order,
-            is_thumbnail,
-            alt_text,
-            video_thumbnail,
-        } = req.body;
+export const createProductMedia = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
 
-        const userId = req.user.id;
+    const userId = req.user.id;
 
-        const product = await productRepository.findOne({
-            where: { productId },
-        });
+    const mediaList = req.body.media;
 
-        if (!product) {
-            return res.status(404).json({
-                success: false,
-                message: "Product not found."
-            })
-        }
-        const media = mediaRepository.create({
-            product,
-            media_url,
-            media_type,
-            sort_order,
-            is_thumbnail,
-            alt_text,
-            video_thumbnail,
-            created_by: userId,
-        });
-
-        await mediaRepository.save(media);
-
-        return res.status(201).json({
-            success: true,
-            message: "Product media created successfully",
-            data: media,
-        });
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message,
-        });
+    if (
+      !mediaList ||
+      !Array.isArray(mediaList)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "media must be an array",
+      });
     }
-}
+
+    const mediaToCreate =
+      mediaList.map((item: any) => {
+
+        return mediaRepository.create({
+
+          product: {
+            productId: item.productId,
+          },
+
+          media_url: item.media_url,
+
+          media_type: item.media_type,
+
+          sort_order: item.sort_order,
+
+          is_thumbnail:
+            item.is_thumbnail,
+
+          alt_text: item.alt_text,
+
+          created_by: userId,
+        });
+
+      });
+
+    const savedMedia =
+      await mediaRepository.save(
+        mediaToCreate
+      );
+
+    return res.status(201).json({
+      success: true,
+      message:
+        "Product media created successfully",
+      data: savedMedia,
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Failed to create product media",
+      error,
+    });
+
+  }
+};
 
 export const getAllProductMedia = async (req: AuthRequest, res: Response) => {
     try {
