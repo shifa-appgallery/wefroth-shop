@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, Unique, CreateDateColumn, Updat
 import { SellerType } from "../constants/enums";
 
 @Entity()
-@Unique(["seller_type", "seller_id"])
+@Unique(["teamId"])
 export class ShopProfile {
   @PrimaryGeneratedColumn()
   shopProfileId: number;
