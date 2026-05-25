@@ -94,7 +94,7 @@ export const getProductsDetailsController = async (
             teamId,
             searchTerm,
             categoryName,
-            page = 1,
+            offset = 0,
             limit = 10,
         } = req.query;
 
@@ -102,9 +102,10 @@ export const getProductsDetailsController = async (
             teamId: Number(teamId),
             searchTerm: String(searchTerm || ""),
             categoryName: String(categoryName || ""),
-            page: Number(page),
+            offset: Number(offset),
             limit: Number(limit),
         });
+
 
         return res.status(200).json({
             success: true,

@@ -474,7 +474,7 @@ export const getProductDetails = async ({
   teamId,
   searchTerm,
   categoryName,
-  page,
+  offset,
   limit,
 }: any) => {
 
@@ -489,9 +489,7 @@ export const getProductDetails = async ({
   if (!shopProfile) {
     throw new Error("Shop profile not found");
   }
-
-
-  const skip = (page - 1) * limit;
+  console.log("shopProfile", shopProfile)
 
   const query = productRepository
     .createQueryBuilder("product")
@@ -576,7 +574,7 @@ export const getProductDetails = async ({
 
   }
 
-  query.skip(skip).take(limit);
+  query.offset(offset).limit(limit);
 
 
   const [products, total] =
@@ -614,6 +612,8 @@ export const getProductDetails = async ({
       return {
         ...product,
 
+        shopProfile,
+
         totalStock,
 
         totalSold: Number(
@@ -630,10 +630,8 @@ export const getProductDetails = async ({
 
   return {
     total,
-    currentPage: page,
-    totalPages: Math.ceil(total / limit),
+    offset,
     limit,
-
     data: updatedProducts,
   };
 };
