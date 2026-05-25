@@ -473,7 +473,7 @@ export const deleteProduct = async (productId: string) => {
 export const getProductDetails = async ({
   teamId,
   searchTerm,
-  categoryName,
+  categoryId,
   offset,
   limit,
 }: any) => {
@@ -489,7 +489,6 @@ export const getProductDetails = async ({
   if (!shopProfile) {
     throw new Error("Shop profile not found");
   }
-  console.log("shopProfile", shopProfile)
 
   const query = productRepository
     .createQueryBuilder("product")
@@ -563,12 +562,12 @@ export const getProductDetails = async ({
 
   }
 
-  if (categoryName) {
+  if (categoryId) {
 
     query.andWhere(
-      "LOWER(category.categoryName) = LOWER(:categoryName)",
+      "category.categoryId = :categoryId",
       {
-        categoryName,
+        categoryId,
       }
     );
 
