@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createProduct, deleteProduct, getProducts, updateProduct } from "../service/productService";
+import { createProduct, deleteProduct, getProductDetails, getProducts, updateProduct } from "../service/productService";
 import { AuthRequest } from "../middleware/authorization";
 
 export const createProductController = async (
@@ -75,6 +75,25 @@ export const deleteProductController = async (
         return res.status(200).json({
             success: true,
             message: "Product deleted successfully",
+        });
+    } catch (error: any) {
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+export const getProductsDetailsController = async (
+    req: AuthRequest,
+    res: Response
+) => {
+    try {
+        const response = await getProductDetails();
+
+        return res.status(200).json({
+            success: true,
+            data: response,
         });
     } catch (error: any) {
         return res.status(500).json({

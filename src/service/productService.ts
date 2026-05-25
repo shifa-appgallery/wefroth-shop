@@ -2,6 +2,7 @@ import { AppDataSource } from "../config/data-source";
 import { Category } from "../entities/Category";
 import { Color } from "../entities/Color";
 import { Gender } from "../entities/Gender";
+import { OrderItem } from "../entities/OrderItem";
 import { Product } from "../entities/Product";
 import { ProductMedia } from "../entities/ProductMedia";
 import { ProductVariant } from "../entities/ProductVariant";
@@ -11,6 +12,7 @@ import { VariantImage } from "../entities/VanriantImage";
 const productRepository = AppDataSource.getRepository(Product);
 const categoryRepository = AppDataSource.getRepository(Category);
 const genderRepository = AppDataSource.getRepository(Gender);
+const orderItemRepository = AppDataSource.getRepository(OrderItem)
 
 export const createProduct = async (
   body: any,
@@ -464,4 +466,67 @@ export const deleteProduct = async (productId: string) => {
   });
 
   return true;
+};
+
+export const getProductDetails = async () => {
+
+  const products = await productRepository.find({
+    where: {
+      is_active: true,
+    },
+    relations: [
+      "category",
+      "gender",
+      "variants",
+      "variants.variantImages",
+      "variants.color",
+      "variants.size",
+      "media",
+      "reviews",
+    ],
+  });
+
+  const updatedProducts = await Promise.all(
+    products.map(async (product: any) => {
+
+      // =========================
+      // Total Stock
+      // =========================
+
+      const totalStock = product.variants.reduce(
+        (sum: number, variant: any) =>
+          sum + Number(variant.stock || 0),
+        0
+      );
+
+      // =========================
+      // Total Sold + Revenue
+      // =========================
+
+      const salesData = await orderItemRepository
+        .createQueryBuilder("oi")
+        .select("SUM(oi.quantity)", "totalSold")
+        .addSelect("SUM(oi.total_price)", "revenue")
+        .where("oi.product = :productId", {
+          productId: product.productId,
+        })
+        .getRawOne();
+
+      return {
+        ...product,
+
+        totalStock,
+
+        totalSold: Number(
+          salesData?.totalSold || 0
+        ),
+
+        revenue: Number(
+          salesData?.revenue || 0
+        ),
+      };
+    })
+  );
+
+  return updatedProducts;
 };
