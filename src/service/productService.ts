@@ -1,3 +1,4 @@
+import { MoreThanOrEqual } from "typeorm";
 import { AppDataSource } from "../config/data-source";
 import { Category } from "../entities/Category";
 import { Color } from "../entities/Color";
@@ -560,13 +561,6 @@ export const getProductDetails = async ({
       }
     )
 
-    .andWhere(
-      "product.seller_type = :seller_type",
-      {
-        seller_type: shopProfile.seller_type,
-      }
-    );
-
   if (searchTerm) {
 
     query.andWhere(
@@ -648,5 +642,56 @@ export const getProductDetails = async ({
     offset,
     limit,
     data: updatedProducts,
+  };
+};
+
+export const getNewArrivalProducts = async (
+  offset: number = 0,
+  limit: number = 10
+) => {
+
+
+  const last3Days = new Date();
+
+  last3Days.setDate(
+    last3Days.getDate() - 3
+  );
+
+
+  const [products, total] =
+    await productRepository.findAndCount({
+
+      relations: [
+        "category",
+        "gender",
+        "variants",
+        "variants.variantImages",
+        "variants.color",
+        "variants.size",
+        "media",
+        "reviews",
+      ],
+
+      where: {
+        is_active: true,
+
+        created_at:
+          MoreThanOrEqual(last3Days),
+      },
+
+      order: {
+        created_at: "DESC",
+      },
+
+      skip: offset,
+
+      take: limit,
+    });
+
+  return {
+    total,
+    offset,
+    limit,
+    data: products,
   };
 };

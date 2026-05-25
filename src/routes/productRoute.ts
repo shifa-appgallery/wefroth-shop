@@ -18,8 +18,11 @@ router.put("/update-product", verifyToken, (req: Request, res: Response) => {
 router.delete("/delete-product", verifyToken, (req: Request, res: Response) => {
     productController.deleteProductController(req, res);
 });
-router.get("/get-product-details", verifyToken, (req: Request, res: Response) => {
+router.get("/get-vendor-products", verifyToken, (req: Request, res: Response) => {
     productController.getProductsDetailsController(req, res);
+});
+router.get("/get-new-arrivals", verifyToken, (req: Request, res: Response) => {
+    productController.getNewArrivalProductsController(req, res);
 });
 
 export default router;

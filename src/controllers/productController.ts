@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createProduct, deleteProduct, getProductDetails, getProducts, updateProduct } from "../service/productService";
+import { createProduct, deleteProduct, getNewArrivalProducts, getProductDetails, getProducts, updateProduct } from "../service/productService";
 import { AuthRequest } from "../middleware/authorization";
 
 export const createProductController = async (
@@ -129,3 +129,36 @@ export const getProductsDetailsController = async (
 
     }
 };
+
+export const getNewArrivalProductsController =
+    async (
+        req: AuthRequest,
+        res: Response
+    ) => {
+        try {
+
+            const {
+                offset = 0,
+                limit = 10,
+            } = req.query;
+
+            const response =
+                await getNewArrivalProducts(
+                    Number(offset),
+                    Number(limit)
+                );
+
+            return res.status(200).json({
+                success: true,
+                ...response,
+            });
+
+        } catch (error: any) {
+
+            return res.status(500).json({
+                success: false,
+                message: error.message,
+            });
+
+        }
+    };
