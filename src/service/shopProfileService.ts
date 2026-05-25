@@ -11,8 +11,7 @@ export const createShopProfile = async (
 
   const existingShop = await shopProfileRepository.findOne({
     where: {
-      seller_type: body.seller_type,
-      seller_id: userId,
+      teamId: body.teamId,
     },
   });
 
