@@ -495,6 +495,7 @@ export const getProductDetails = async ({
   limit,
 }: any) => {
 
+
   const shopProfile = await shopProfileRepository.findOne({
     where: {
       teamId,
@@ -506,74 +507,7 @@ export const getProductDetails = async ({
     throw new Error("Shop profile not found");
   }
 
-  // -----------------------------
-  // BASE QUERY
-  // -----------------------------
-  const baseQuery = productRepository
-    .createQueryBuilder("product")
-
-    .where("product.is_active = :is_active", {
-      is_active: true,
-    })
-
-    .andWhere(
-      "product.seller_id = :seller_id",
-      {
-        seller_id: shopProfile.seller_id,
-      }
-    );
-
-  if (searchTerm) {
-    baseQuery.andWhere(
-      "LOWER(product.productName) LIKE LOWER(:searchTerm)",
-      {
-        searchTerm: `%${searchTerm}%`,
-      }
-    );
-  }
-
-  if (categoryId) {
-    baseQuery.andWhere(
-      "product.categoryId = :categoryId",
-      {
-        categoryId,
-      }
-    );
-  }
-
-  // -----------------------------
-  // TOTAL COUNT
-  // -----------------------------
-  const total = await baseQuery.getCount();
-
-  // -----------------------------
-  // GET PRODUCT IDS WITH PAGINATION
-  // -----------------------------
-  const productIdsResult = await baseQuery
-    .clone()
-    .select("product.productId", "productId")
-    .offset(offset)
-    .limit(limit)
-    .getRawMany();
-
-  const productIds = productIdsResult.map(
-    (item: any) => item.productId
-  );
-
-  // if no products
-  if (!productIds.length) {
-    return {
-      total,
-      offset,
-      limit,
-      data: [],
-    };
-  }
-
-  // -----------------------------
-  // GET FULL PRODUCTS
-  // -----------------------------
-  const products = await productRepository
+  const query = productRepository
     .createQueryBuilder("product")
 
     .leftJoinAndSelect(
@@ -616,13 +550,46 @@ export const getProductDetails = async ({
       "reviews"
     )
 
-    .whereInIds(productIds)
+    .where("product.is_active = :is_active", {
+      is_active: true,
+    })
 
-    .getMany();
+    .andWhere(
+      "product.seller_id = :seller_id",
+      {
+        seller_id: shopProfile.seller_id,
+      }
+    )
 
-  // -----------------------------
-  // UPDATED PRODUCTS
-  // -----------------------------
+  if (searchTerm) {
+
+    query.andWhere(
+      "LOWER(product.productName) LIKE LOWER(:searchTerm)",
+      {
+        searchTerm: `%${searchTerm}%`,
+      }
+    );
+
+  }
+
+  if (categoryId) {
+
+    query.andWhere(
+      "category.categoryId = :categoryId",
+      {
+        categoryId,
+      }
+    );
+
+  }
+
+  query.offset(offset).limit(limit);
+
+
+  const [products, total] =
+    await query.getManyAndCount();
+    console.log("products")
+
   const updatedProducts = await Promise.all(
     products.map(async (product: any) => {
 
