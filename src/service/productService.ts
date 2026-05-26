@@ -34,7 +34,7 @@ export const createProduct = async (
       where: {
         productName: body.productName,
         seller_type: body.seller_type,
-        seller_id: body.seller_id,
+        teamId: body.teamId,
       },
     });
 
@@ -73,13 +73,20 @@ export const createProduct = async (
 
       seller_type: body.seller_type,
 
-      seller_id: body.seller_id,
+      teamId: body.teamId,
 
       category: existingCategory,
 
       gender: existingGender,
 
       base_price: body.base_price,
+
+      discount_value:
+        body.discount_value || 0,
+
+      discounted_price:
+        body.discounted_price ||
+        body.base_price,
 
       currency: body.currency || "AUD",
 
@@ -224,6 +231,13 @@ export const createProduct = async (
 
             price: item.price,
 
+            discount_value:
+              item.discount_value || 0,
+
+            discounted_price:
+              item.discounted_price ||
+              item.price,
+
             stock: item.stock,
 
             created_by: userId,
@@ -290,8 +304,13 @@ export const createProduct = async (
           productName: savedProduct.productName,
           description: savedProduct.description,
           seller_type: savedProduct.seller_type,
-          seller_id: savedProduct.seller_id,
+          teamId: savedProduct.teamId,
           base_price: savedProduct.base_price,
+          discount_value:
+            savedProduct.discount_value,
+
+          discounted_price:
+            savedProduct.discounted_price,
           currency: savedProduct.currency,
           is_active: savedProduct.is_active,
           created_at: savedProduct.created_at,
@@ -320,6 +339,13 @@ export const createProduct = async (
           sku: variant.sku,
 
           price: variant.price,
+
+          discount_value:
+            variant.discount_value,
+
+          discounted_price:
+            variant.discounted_price,
+
 
           stock: variant.stock,
 
@@ -491,152 +517,216 @@ export const getProductDetails = async ({
   teamId,
   searchTerm,
   categoryId,
-  offset,
-  limit,
+  offset = 0,
+  limit = 10,
 }: any) => {
 
 
-  const shopProfile = await shopProfileRepository.findOne({
-    where: {
-      teamId,
-      is_active: true,
-    },
-  });
-
-  if (!shopProfile) {
-    throw new Error("Shop profile not found");
-  }
-
-  const query = productRepository
+  const baseQuery = productRepository
     .createQueryBuilder("product")
 
-    .leftJoinAndSelect(
-      "product.category",
-      "category"
-    )
-
-    .leftJoinAndSelect(
-      "product.gender",
-      "gender"
-    )
-
-    .leftJoinAndSelect(
-      "product.variants",
-      "variants"
-    )
-
-    .leftJoinAndSelect(
-      "variants.variantImages",
-      "variantImages"
-    )
-
-    .leftJoinAndSelect(
-      "variants.color",
-      "color"
-    )
-
-    .leftJoinAndSelect(
-      "variants.size",
-      "size"
-    )
-
-    .leftJoinAndSelect(
-      "product.media",
-      "media"
-    )
-
-    .leftJoinAndSelect(
-      "product.reviews",
-      "reviews"
-    )
-
-    .where("product.is_active = :is_active", {
-      is_active: true,
-    })
-
-    .andWhere(
-      "product.seller_id = :seller_id",
+    .where(
+      "product.is_active = :is_active",
       {
-        seller_id: shopProfile.seller_id,
+        is_active: true,
       }
     )
 
+    .andWhere(
+      "product.teamId = :teamId",
+      {
+        teamId,
+      }
+    );
+
   if (searchTerm) {
 
-    query.andWhere(
-      "LOWER(product.productName) LIKE LOWER(:searchTerm)",
+    baseQuery.andWhere(
+      `
+      LOWER(product.productName)
+      LIKE LOWER(:searchTerm)
+      `,
       {
         searchTerm: `%${searchTerm}%`,
       }
     );
-
   }
 
   if (categoryId) {
 
-    query.andWhere(
-      "category.categoryId = :categoryId",
+    baseQuery.andWhere(
+      "product.categoryId = :categoryId",
       {
         categoryId,
       }
     );
-
   }
 
-  query.offset(offset).limit(limit);
+  const total =
+    await baseQuery.getCount();
+
+  const productIdsResult =
+    await baseQuery
+      .clone()
+
+      .select(
+        "product.productId",
+        "productId"
+      )
+
+      .orderBy(
+        "product.created_at",
+        "DESC"
+      )
+
+      .offset(offset)
+
+      .limit(limit)
+
+      .getRawMany();
+
+  const productIds =
+    productIdsResult.map(
+      (item: any) =>
+        item.productId
+    );
+
+  if (!productIds.length) {
+
+    return {
+      total,
+      offset,
+      limit,
+      data: [],
+    };
+  }
+
+  const products =
+    await productRepository
+      .createQueryBuilder("product")
+
+      .leftJoinAndSelect(
+        "product.category",
+        "category"
+      )
+
+      .leftJoinAndSelect(
+        "product.gender",
+        "gender"
+      )
+
+      .leftJoinAndSelect(
+        "product.variants",
+        "variants"
+      )
+
+      .leftJoinAndSelect(
+        "variants.variantImages",
+        "variantImages"
+      )
+
+      .leftJoinAndSelect(
+        "variants.color",
+        "color"
+      )
+
+      .leftJoinAndSelect(
+        "variants.size",
+        "size"
+      )
+
+      .leftJoinAndSelect(
+        "product.media",
+        "media"
+      )
+
+      .leftJoinAndSelect(
+        "product.reviews",
+        "reviews"
+      )
+
+      .whereInIds(productIds)
+
+      .orderBy(
+        "product.created_at",
+        "DESC"
+      )
+
+      .getMany();
+
+  const shopProfile =
+    await shopProfileRepository.findOne({
+      where: {
+        teamId,
+        is_active: true,
+      },
+    });
 
 
-  const [products, total] =
-    await query.getManyAndCount();
-    console.log("products")
+  const updatedProducts =
+    await Promise.all(
 
-  const updatedProducts = await Promise.all(
-    products.map(async (product: any) => {
+      products.map(
+        async (product: any) => {
 
-      const totalStock =
-        product.variants.reduce(
-          (sum: number, variant: any) =>
-            sum + Number(variant.stock || 0),
-          0
-        );
+          // TOTAL STOCK
+          const totalStock =
+            product.variants.reduce(
+              (
+                sum: number,
+                variant: any
+              ) =>
+                sum +
+                Number(
+                  variant.stock || 0
+                ),
 
-      const salesData =
-        await orderItemRepository
-          .createQueryBuilder("oi")
-          .select(
-            "SUM(oi.quantity)",
-            "totalSold"
-          )
-          .addSelect(
-            "SUM(oi.total_price)",
-            "revenue"
-          )
-          .where(
-            "oi.product = :productId",
-            {
-              productId: product.productId,
-            }
-          )
-          .getRawOne();
+              0
+            );
 
-      return {
-        ...product,
+          const salesData =
+            await orderItemRepository
+              .createQueryBuilder("oi")
 
-        shopProfile,
+              .select(
+                "SUM(oi.quantity)",
+                "totalSold"
+              )
 
-        totalStock,
+              .addSelect(
+                "SUM(oi.total_price)",
+                "revenue"
+              )
 
-        totalSold: Number(
-          salesData?.totalSold || 0
-        ),
+              .where(
+                "oi.product = :productId",
+                {
+                  productId:
+                    product.productId,
+                }
+              )
 
-        revenue: Number(
-          salesData?.revenue || 0
-        ),
-      };
+              .getRawOne();
 
-    })
-  );
+          return {
+
+            ...product,
+
+            shopProfile,
+
+            totalStock,
+
+            totalSold: Number(
+              salesData?.totalSold || 0
+            ),
+
+            revenue: Number(
+              salesData?.revenue || 0
+            ),
+          };
+        }
+      )
+    );
 
   return {
     total,

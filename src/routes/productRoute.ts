@@ -21,7 +21,7 @@ router.delete("/delete-product", verifyToken, (req: Request, res: Response) => {
 router.get("/get-vendor-products", verifyToken, (req: Request, res: Response) => {
     productController.getProductsDetailsController(req, res);
 });
-router.get("/get-new-arrivals", verifyToken, (req: Request, res: Response) => {
+router.get("/get-new-arrivals", (req: Request, res: Response) => {
     productController.getNewArrivalProductsController(req, res);
 });
 

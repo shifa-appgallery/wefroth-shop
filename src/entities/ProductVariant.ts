@@ -47,6 +47,20 @@ export class ProductVariant {
   })
   price: number;
 
+  @Column("decimal", {
+    precision: 10,
+    scale: 2,
+    default: 0,
+  })
+  discount_value: number;
+
+  @Column("decimal", {
+    precision: 10,
+    scale: 2,
+    nullable: true,
+  })
+  discounted_price: number;
+
   @Column({ default: 0 })
   stock: number;
 

@@ -32,8 +32,9 @@ export class Product {
   })
   seller_type: SellerType;
 
+  // ADD THIS
   @Column("int", { nullable: true })
-  seller_id: number;
+  teamId: number;
 
   @ManyToOne(() => Category)
   category: Category;
@@ -43,6 +44,20 @@ export class Product {
     scale: 2,
   })
   base_price: number;
+
+  @Column("decimal", {
+    precision: 10,
+    scale: 2,
+    default: 0,
+  })
+  discount_value: number;
+
+  @Column("decimal", {
+    precision: 10,
+    scale: 2,
+    nullable: true,
+  })
+  discounted_price: number;
 
   @ManyToOne(() => Gender, {
     eager: true,
