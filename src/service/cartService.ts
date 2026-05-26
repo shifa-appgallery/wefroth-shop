@@ -30,6 +30,10 @@ export const addToCart = async (body: any, userId: number) => {
         where: {
             productId: body.productId,
         },
+        relations: [
+            "category",
+            "media",
+        ],
     });
 
     if (!product) {
@@ -42,6 +46,11 @@ export const addToCart = async (body: any, userId: number) => {
             where: {
                 variantId: body.variantId,
             },
+            relations: [
+                "variantImages",
+                "color",
+                "size",
+            ],
         });
 
         if (!variant) {
@@ -72,15 +81,30 @@ export const addToCart = async (body: any, userId: number) => {
     return await getCart(userId);
 }
 
-export const getCart = async (userId: number) => {
+export const getCart = async (
+    userId: number
+) => {
+
     return await cartRepository.findOne({
+
         where: {
             user_id: String(userId),
             is_active: true,
         },
-        relations: ["items"],
+
+        relations: [
+            "items",
+            "items.product",
+            "items.product.category",
+            "items.product.media",
+            "items.product.gender",
+            "items.variant",
+            "items.variant.variantImages",
+            "items.variant.color",
+            "items.variant.size",
+        ],
     });
-}
+};
 
 export const updateCartItem = async (cartItemId: number, body: any, userId: number) => {
     const cartItem = await cartItemRepository.findOne({
