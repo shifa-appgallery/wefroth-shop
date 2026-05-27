@@ -19,4 +19,8 @@ router.delete("/delete-shopProfile", verifyToken, (req: Request, res: Response) 
     shopProfileController.deleteShopProfileController(req, res);
 });
 
+router.get("/get-shop-profile-details", verifyToken, (req: Request, res: Response) => {
+    shopProfileController.getShopProfileDetailsController(req, res);
+});
+
 export default router;

@@ -52,7 +52,7 @@ export class ProductVariant {
     scale: 2,
     default: 0,
   })
-  discount_value: number;
+  discount_percentage: number;
 
   @Column("decimal", {
     precision: 10,

@@ -81,8 +81,8 @@ export const createProduct = async (
 
       base_price: body.base_price,
 
-      discount_value:
-        body.discount_value || 0,
+      discount_percentage:
+        body.discount_percentage || 0,
 
       discounted_price:
         body.discounted_price ||
@@ -231,8 +231,8 @@ export const createProduct = async (
 
             price: item.price,
 
-            discount_value:
-              item.discount_value || 0,
+            discount_percentage:
+              item.discount_percentage || 0,
 
             discounted_price:
               item.discounted_price ||
@@ -306,8 +306,8 @@ export const createProduct = async (
           seller_type: savedProduct.seller_type,
           teamId: savedProduct.teamId,
           base_price: savedProduct.base_price,
-          discount_value:
-            savedProduct.discount_value,
+          discount_percentage:
+            savedProduct.discount_percentage,
 
           discounted_price:
             savedProduct.discounted_price,
@@ -340,8 +340,8 @@ export const createProduct = async (
 
           price: variant.price,
 
-          discount_value:
-            variant.discount_value,
+          discount_percentage:
+            variant.discount_percentage,
 
           discounted_price:
             variant.discounted_price,

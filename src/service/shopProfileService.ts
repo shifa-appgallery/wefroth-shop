@@ -1,8 +1,16 @@
 import { AppDataSource } from "../config/data-source";
+import { Product } from "../entities/Product";
+import { ProductReview } from "../entities/ProductReview";
+import { ProductVariant } from "../entities/ProductVariant";
 import { ShopProfile } from "../entities/ShopProfile";
 
 const shopProfileRepository =
   AppDataSource.getRepository(ShopProfile);
+const shopRepo = AppDataSource.getRepository(ShopProfile);
+const productRepo = AppDataSource.getRepository(Product);
+const reviewRepo = AppDataSource.getRepository(ProductReview);
+const variantRepo = AppDataSource.getRepository(ProductVariant);
+
 
 export const createShopProfile = async (
   body: any,
@@ -93,4 +101,87 @@ export const deleteShopProfile = async (
   );
 
   return true;
+};
+
+export const getShopProfileDetails = async (
+  shopProfileId: number
+) => {
+  // Shop Profile
+  const shop = await shopRepo.findOne({
+    where: {
+      shopProfileId,
+      is_active: true,
+    },
+  });
+
+  if (!shop) {
+    throw new Error("Shop profile not found");
+  }
+
+  // Total Products
+  const totalProducts = await productRepo.count({
+    where: {
+      teamId: shop.teamId,
+      is_active: true,
+    },
+  });
+
+  // Total Reviews
+  const totalReviews = await reviewRepo.count({
+    where: {
+      product: {
+        teamId: shop.teamId,
+      },
+    },
+  });
+
+  // Average Rating
+  const ratingData = await reviewRepo
+    .createQueryBuilder("review")
+    .leftJoin("review.product", "product")
+    .select("AVG(review.rating)", "avg")
+    .where("product.teamId = :teamId", {
+      teamId: shop.teamId,
+    })
+    .getRawOne();
+
+  // Low Stock Products
+  const lowStockProducts = await variantRepo
+    .createQueryBuilder("variant")
+    .leftJoinAndSelect("variant.product", "product")
+    .where("variant.stock <= :stock", { stock: 5 })
+    .andWhere("product.teamId = :teamId", {
+      teamId: shop.teamId,
+    })
+    .orderBy("variant.stock", "ASC")
+    .take(5)
+    .getMany();
+
+  // Latest Reviews
+  const latestReviews = await reviewRepo.find({
+    where: {
+      product: {
+        teamId: shop.teamId,
+      },
+    },
+    relations: ["product"],
+    order: {
+      created_at: "DESC",
+    },
+    take: 5,
+  });
+
+  return {
+    shopProfile: shop,
+
+    stats: {
+      products: totalProducts,
+      reviews: totalReviews,
+      rating: Number(ratingData?.avg || 0).toFixed(1),
+    },
+
+    lowStockProducts,
+
+    latestReviews,
+  };
 };

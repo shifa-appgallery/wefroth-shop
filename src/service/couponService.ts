@@ -9,7 +9,7 @@ export const createCoupon = async (
     const coupon = couponRepository.create({
         code: body.code,
         coupon_type: body.coupon_type,
-        discount_value: body.discount_value,
+        discount_percentage: body.discount_percentage,
         minimum_order_amount: body.minimum_order_amount,
         description: body.description,
         expiry_date: body.expiry_date,
@@ -39,7 +39,7 @@ export const updateCoupon = async (
     await couponRepository.update(couponId, {
         code: body.code,
         coupon_type: body.coupon_type,
-        discount_value: body.discount_value,
+        discount_percentage: body.discount_percentage,
         minimum_order_amount: body.minimum_order_amount,
         description: body.description,
         expiry_date: body.expiry_date,

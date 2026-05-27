@@ -1,7 +1,7 @@
 import { Response } from "express";
 
 import { AuthRequest } from "../middleware/authorization";
-import { createShopProfile, deleteShopProfile, getShopProfiles, updateShopProfile } from "../service/shopProfileService";
+import { createShopProfile, deleteShopProfile, getShopProfileDetails, getShopProfiles, updateShopProfile } from "../service/shopProfileService";
 
 export const createShopProfileController = async (
   req: AuthRequest,
@@ -109,5 +109,26 @@ export const deleteShopProfileController = async (
       message: error.message,
     });
 
+  }
+};
+
+export const getShopProfileDetailsController = async (req: AuthRequest, res: Response) => {
+  try {
+    const { shopProfileId } = req.query;
+
+    const data = await getShopProfileDetails(
+      Number(shopProfileId)
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Shop profile fetched successfully",
+      data,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };

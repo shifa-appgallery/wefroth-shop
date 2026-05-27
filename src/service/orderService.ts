@@ -74,7 +74,7 @@ export const createOrder = async (
         });
 
         if (coupon) {
-            discountAmount = Number(coupon.discount_value);
+            discountAmount = Number(coupon.discount_percentage);
         }
     }
 

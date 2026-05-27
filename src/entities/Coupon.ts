@@ -28,7 +28,7 @@ export class Coupon {
     precision: 10,
     scale: 2,
   })
-  discount_value: number;
+  discount_percentage: number;
 
   @Column("decimal", {
     precision: 10,
