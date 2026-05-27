@@ -16,7 +16,7 @@ export class Wishlist {
   @PrimaryGeneratedColumn()
   wishlistId: number;
 
-  @Column("uuid")
+  @Column("int")
   user_id: string;
 
   @ManyToOne(() => Product, {
