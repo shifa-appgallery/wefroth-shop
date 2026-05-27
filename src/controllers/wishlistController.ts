@@ -4,44 +4,70 @@ import { Wishlist } from "../entities/Wishlist";
 import { AuthRequest } from "../middleware/authorization";
 const wishListRepo = AppDataSource.getRepository(Wishlist);
 
-export const createWishList = async (req: AuthRequest, res: Response) => {
-    try {
-        const { productId } = req.body;
-        const userId = req.user?.id;
+export const createWishList = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const { productId } = req.body;
 
-        const existWishList = await wishListRepo.findOne({
-            where: {
-                user_id: userId,
-                product: {
-                    productId,
-                },
-            },
-            relations: ["product"],
-        })
-        if (existWishList) {
-            throw new Error("Product already there in wishlist.");
-        }
+    const userId = req.user?.id;
 
-        const data = wishListRepo.create({
-            user_id: userId,
-            product: { productId },
-            is_active: true,
-            created_by:userId
-        });
-        const savedData = await wishListRepo.save(data);
+    // Find wishlist even inactive
+    const existWishList = await wishListRepo.findOne({
+      where: {
+        user_id: userId,
+        product: {
+          productId,
+        },
+      },
+      relations: ["product"],
+    });
 
-        return res.status(201).json({
-            success: true,
-            data: savedData,
-        })
-
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message,
-        });
+    // Already active
+    if (existWishList?.is_active) {
+      throw new Error(
+        "Product already exists in wishlist."
+      );
     }
-}
+
+    // Reactivate old wishlist
+    if (existWishList && !existWishList.is_active) {
+      existWishList.is_active = true;
+
+      const updatedData = await wishListRepo.save(
+        existWishList
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Product added to wishlist",
+        data: updatedData,
+      });
+    }
+
+    // Create new wishlist
+    const data = wishListRepo.create({
+      user_id: userId,
+      product: { productId },
+      is_active: true,
+      created_by: userId,
+    });
+
+    const savedData = await wishListRepo.save(data);
+
+    return res.status(201).json({
+      success: true,
+      message: "Product added to wishlist",
+      data: savedData,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 export const getWishList = async (
   req: AuthRequest,
