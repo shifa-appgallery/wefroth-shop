@@ -743,7 +743,7 @@ export const getNewArrivalProducts = async (
   offset: number = 0,
   limit: number = 10
 ) => {
-
+console.log("USER ID =>", userId);
   const last3Days = new Date();
 
   last3Days.setDate(
@@ -784,6 +784,7 @@ export const getNewArrivalProducts = async (
 
   // Only check wishlist if user logged in
   if (userId) {
+    
     const wishlistItems = await wishListRepo.find({
       where: {
         user_id: Number(userId),
@@ -791,6 +792,18 @@ export const getNewArrivalProducts = async (
       },
       relations: ["product"],
     });
+    console.log(
+  "WISHLIST IDS =>",
+  wishlistItems.map(
+    (item) => item.product.productId
+  )
+  
+);
+
+console.log(
+  "PRODUCT IDS =>",
+  products.map((p) => p.productId)
+);
 
     wishlistProductIds = new Set(
       wishlistItems.map(

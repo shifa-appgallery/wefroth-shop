@@ -35,3 +35,39 @@ export const verifyToken = (
     });
   }
 };
+
+export const optionalVerifyToken = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    // No token → continue normally
+    if (!authHeader) {
+      req.user = null;
+      return next();
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    if (!token) {
+      req.user = null;
+      return next();
+    }
+
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string
+    );
+
+    req.user = decoded;
+
+    next();
+  } catch (error) {
+    // Invalid token → optional behavior
+    req.user = null;
+    next();
+  }
+};

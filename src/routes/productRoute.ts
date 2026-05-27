@@ -2,7 +2,7 @@ import { Router } from "express";
 import express, { Request, Response } from "express";
 
 import * as productController from "../controllers/productController"
-import { verifyToken } from "../middleware/authorization";
+import { optionalVerifyToken, verifyToken } from "../middleware/authorization";
 
 const router = Router();
 
@@ -21,7 +21,7 @@ router.delete("/delete-product", verifyToken, (req: Request, res: Response) => {
 router.get("/get-vendor-products", verifyToken, (req: Request, res: Response) => {
     productController.getProductsDetailsController(req, res);
 });
-router.get("/get-new-arrivals", (req: Request, res: Response) => {
+router.get("/get-new-arrivals", optionalVerifyToken,(req: Request, res: Response) => {
     productController.getNewArrivalProductsController(req, res);
 });
 
