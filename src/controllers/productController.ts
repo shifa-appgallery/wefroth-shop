@@ -137,6 +137,8 @@ export const getNewArrivalProductsController =
     ) => {
         try {
 
+            const userId = req.user?.id || null;
+
             const {
                 offset = 0,
                 limit = 10,
@@ -144,6 +146,7 @@ export const getNewArrivalProductsController =
 
             const response =
                 await getNewArrivalProducts(
+                    userId,
                     Number(offset),
                     Number(limit)
                 );
@@ -161,4 +164,4 @@ export const getNewArrivalProductsController =
             });
 
         }
-};
+    };

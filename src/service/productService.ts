@@ -10,12 +10,14 @@ import { ProductVariant } from "../entities/ProductVariant";
 import { ShopProfile } from "../entities/ShopProfile";
 import { Size } from "../entities/Size";
 import { VariantImage } from "../entities/VanriantImage";
+import { Wishlist } from "../entities/Wishlist";
 
 const productRepository = AppDataSource.getRepository(Product);
 const categoryRepository = AppDataSource.getRepository(Category);
 const genderRepository = AppDataSource.getRepository(Gender);
 const orderItemRepository = AppDataSource.getRepository(OrderItem);
 const shopProfileRepository = AppDataSource.getRepository(ShopProfile)
+const wishListRepo = AppDataSource.getRepository(Wishlist);
 
 export const createProduct = async (
   body: any,
@@ -737,17 +739,16 @@ export const getProductDetails = async ({
 };
 
 export const getNewArrivalProducts = async (
+  userId: string | null,
   offset: number = 0,
   limit: number = 10
 ) => {
-
 
   const last3Days = new Date();
 
   last3Days.setDate(
     last3Days.getDate() - 3
   );
-
 
   const [products, total] =
     await productRepository.findAndCount({
@@ -779,10 +780,36 @@ export const getNewArrivalProducts = async (
       take: limit,
     });
 
+  let wishlistProductIds = new Set<number>();
+
+  // Only check wishlist if user logged in
+  if (userId) {
+    const wishlistItems = await wishListRepo.find({
+      where: {
+        user_id: userId,
+        is_active: true,
+      },
+      relations: ["product"],
+    });
+
+    wishlistProductIds = new Set(
+      wishlistItems.map(
+        (item) => item.product.productId
+      )
+    );
+  }
+
+  // Add isAddedToWishlist
+  const updatedProducts = products.map((product) => ({
+    ...product,
+    isAddedToWishlist:
+      wishlistProductIds.has(product.productId),
+  }));
+
   return {
     total,
     offset,
     limit,
-    data: products,
+    data: updatedProducts,
   };
 };
