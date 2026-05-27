@@ -93,6 +93,7 @@ export const getWishList = async (
         "product.variants.variantImages",
         "product.variants.size",
         "product.variants.color",
+        "product.reviews",
       ],
       order: {
         created_at: "DESC",

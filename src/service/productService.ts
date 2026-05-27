@@ -30,7 +30,7 @@ export const createProduct = async (
   await queryRunner.startTransaction();
 
   try {
-    console.log("PRODUCT MEDIA", body.product_media);
+
     // CHECK EXISTING PRODUCT
     const existingProduct = await queryRunner.manager.findOne(Product, {
       where: {
@@ -109,7 +109,6 @@ export const createProduct = async (
     ) {
 
       for (const media of body.product_media) {
-        console.log("MEDIA OBJECT =>", media);
 
         const productMedia = queryRunner.manager.create(ProductMedia, {
 
@@ -743,7 +742,6 @@ export const getNewArrivalProducts = async (
   offset: number = 0,
   limit: number = 10
 ) => {
-console.log("USER ID =>", userId);
   const last3Days = new Date();
 
   last3Days.setDate(
@@ -792,18 +790,6 @@ console.log("USER ID =>", userId);
       },
       relations: ["product"],
     });
-    console.log(
-  "WISHLIST IDS =>",
-  wishlistItems.map(
-    (item) => item.product.productId
-  )
-  
-);
-
-console.log(
-  "PRODUCT IDS =>",
-  products.map((p) => p.productId)
-);
 
     wishlistProductIds = new Set(
       wishlistItems.map(
