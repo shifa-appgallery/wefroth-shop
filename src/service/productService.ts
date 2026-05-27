@@ -786,7 +786,7 @@ export const getNewArrivalProducts = async (
   if (userId) {
     const wishlistItems = await wishListRepo.find({
       where: {
-        user_id: userId,
+        user_id: Number(userId),
         is_active: true,
       },
       relations: ["product"],

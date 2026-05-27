@@ -17,7 +17,7 @@ export class Wishlist {
   wishlistId: number;
 
   @Column("int")
-  user_id: string;
+  user_id: number;
 
   @ManyToOne(() => Product, {
     onDelete: "CASCADE",
