@@ -486,6 +486,14 @@ export const updateProduct = async (
       body.currency ??
       existingProduct.currency,
 
+    discount_percentage:
+      body.discount_percentage ??
+      existingProduct.discount_percentage,
+
+    discounted_price:
+      body.discounted_price ??
+      existingProduct.discounted_price,
+
     category: category,
 
     gender: gender,
