@@ -42,7 +42,14 @@ export const getProductsController = async (
 
         return res.status(200).json({
             success: true,
-            data: response,
+
+            total: response.total,
+
+            offset: response.offset,
+
+            limit: response.limit,
+
+            data: response.data,
         });
     } catch (error: any) {
         return res.status(500).json({
