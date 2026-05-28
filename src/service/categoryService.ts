@@ -72,7 +72,6 @@ export const getCategories = async (
       "parent"
     )
 
-    // CHILDREN
     .leftJoinAndSelect(
       "category.children",
       "children",
@@ -82,7 +81,7 @@ export const getCategories = async (
       { isActive }
     )
 
-    // PARENT CATEGORY PRODUCTS
+    // CATEGORY PRODUCTS
     .leftJoin(
       "category.products",
       "product"
@@ -129,8 +128,7 @@ export const getCategories = async (
     `, { type });
   }
 
-  // CATEGORY MUST HAVE PRODUCT
-  // OR CHILD CATEGORY MUST HAVE PRODUCT
+  // CATEGORY OR CHILD CATEGORY MUST HAVE PRODUCTS
   query.andWhere(`
     (
       product.productId IS NOT NULL
@@ -146,9 +144,32 @@ export const getCategories = async (
     )
     .distinct(true);
 
-  return await query.getMany();
-};
+  const categories =
+    await query.getMany();
 
+  // REMOVE EMPTY CHILDREN
+  const filteredCategories =
+    categories.map((category: any) => {
+
+      category.children =
+        category.children.filter(
+          (child: any) => {
+
+            // KEEP ONLY CHILDREN
+            // HAVING PRODUCTS
+
+            return categories.some(
+              (cat: any) =>
+                cat.categoryId === child.categoryId
+            );
+          }
+        );
+
+      return category;
+    });
+
+  return filteredCategories;
+};
 export const updateCategory = async (
   categoryId: number,
   body: any,
