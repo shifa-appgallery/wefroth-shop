@@ -14,6 +14,7 @@ import colorRoutes from "./colorRoute"
 import sizeRoutes from "./sizeRoute"
 import genderRoutes from "./genderRoute"
 import wishlistRoutes from "./wishlistRoutes"
+import bannerRoutes from "./bannerRoute"
 
 const router = Router();
 
@@ -32,5 +33,6 @@ router.use("/color", colorRoutes);
 router.use("/size", sizeRoutes);
 router.use("/gender", genderRoutes);
 router.use("/wishlist", wishlistRoutes);
+router.use("/banner", bannerRoutes);
 
 export default router;
