@@ -100,6 +100,8 @@ export const createVariant = async (
     price: body.price,
 
     stock: body.stock,
+    discount_percentage: body.discount_percentage,
+    discounted_price: body.discounted_price,
 
     created_by: userId,
   });
@@ -170,6 +172,8 @@ export const updateVariant = async (
     sku: body.sku ?? existingVariant.sku,
     price: body.price ?? existingVariant.price,
     stock: body.stock ?? existingVariant.stock,
+    discount_percentage: body.discount_percentage ?? existingVariant.discount_percentage,
+    discounted_price: body.discounted_price ?? existingVariant.discounted_price,
     color,
     size,
     updated_by: userId,
