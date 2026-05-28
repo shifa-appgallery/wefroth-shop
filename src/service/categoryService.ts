@@ -58,6 +58,7 @@ export const createCategory = async (
 
   return await categoryRepository.save(category);
 };
+
 export const getCategories = async (
   isActive?: boolean,
   type?: string
@@ -71,6 +72,7 @@ export const getCategories = async (
       "parent"
     )
 
+    // CHILDREN
     .leftJoinAndSelect(
       "category.children",
       "children",
@@ -80,16 +82,28 @@ export const getCategories = async (
       { isActive }
     )
 
-    // CATEGORY -> PRODUCTS
+    // PARENT CATEGORY PRODUCTS
     .leftJoin(
       "category.products",
       "product"
     )
 
-    // PRODUCT -> GENDER
+    // CHILD CATEGORY PRODUCTS
+    .leftJoin(
+      "children.products",
+      "childProduct"
+    )
+
+    // PRODUCT GENDER
     .leftJoin(
       "product.gender",
       "gender"
+    )
+
+    // CHILD PRODUCT GENDER
+    .leftJoin(
+      "childProduct.gender",
+      "childGender"
     );
 
   if (isActive !== undefined) {
@@ -100,16 +114,30 @@ export const getCategories = async (
     );
   }
 
+  // GENDER FILTER
   if (
     type &&
     type !== "ALL"
   ) {
 
-    query.andWhere(
-      "LOWER(gender.name) = LOWER(:type)",
-      { type }
-    );
+    query.andWhere(`
+      (
+        LOWER(gender.name) = LOWER(:type)
+        OR
+        LOWER(childGender.name) = LOWER(:type)
+      )
+    `, { type });
   }
+
+  // CATEGORY MUST HAVE PRODUCT
+  // OR CHILD CATEGORY MUST HAVE PRODUCT
+  query.andWhere(`
+    (
+      product.productId IS NOT NULL
+      OR
+      childProduct.productId IS NOT NULL
+    )
+  `);
 
   query
     .orderBy(
