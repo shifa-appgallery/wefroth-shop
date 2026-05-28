@@ -30,14 +30,18 @@ export const getProductsController = async (
         const {
             offset = 0,
             limit = 10,
-            categoryId
+            categoryId,
+            gender
         } = req.query;
         const response = await getProducts(
             Number(offset),
             Number(limit),
             categoryId
                 ? Number(categoryId)
-                : undefined
+                : undefined,
+            gender
+                ? String(gender)
+                : undefined,
         );
 
         return res.status(200).json({

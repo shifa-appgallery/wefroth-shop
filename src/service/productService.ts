@@ -379,7 +379,8 @@ export const createProduct = async (
 export const getProducts = async (
   offset: number,
   limit: number,
-  categoryId?: number
+  categoryId?: number,
+  gender?: string
 ) => {
 
   const whereCondition: any = {
@@ -388,8 +389,20 @@ export const getProducts = async (
 
   // CATEGORY FILTER
   if (categoryId) {
+
     whereCondition.category = {
       categoryId,
+    };
+  }
+
+  // GENDER FILTER
+  if (
+    gender &&
+    gender !== "ALL"
+  ) {
+
+    whereCondition.gender = {
+      name: gender,
     };
   }
 
