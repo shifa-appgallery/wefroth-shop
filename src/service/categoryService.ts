@@ -59,15 +59,18 @@ export const createCategory = async (
   return await categoryRepository.save(category);
 };
 export const getCategories = async (
-  isActive?: boolean, type?: string
+  isActive?: boolean,
+  type?: string
 ) => {
 
   const query = categoryRepository
     .createQueryBuilder("category")
+
     .leftJoinAndSelect(
       "category.parent",
       "parent"
     )
+
     .leftJoinAndSelect(
       "category.children",
       "children",
@@ -75,29 +78,45 @@ export const getCategories = async (
         ? "children.is_active = :isActive"
         : "",
       { isActive }
+    )
+
+    // CATEGORY -> PRODUCTS
+    .leftJoin(
+      "category.products",
+      "product"
+    )
+
+    // PRODUCT -> GENDER
+    .leftJoin(
+      "product.gender",
+      "gender"
     );
 
   if (isActive !== undefined) {
+
     query.where(
       "category.is_active = :isActive",
       { isActive }
     );
   }
+
   if (
     type &&
     type !== "ALL"
   ) {
 
     query.andWhere(
-      "category.type = :type",
+      "LOWER(gender.name) = LOWER(:type)",
       { type }
     );
   }
 
-  query.orderBy(
-    "category.sort_order",
-    "ASC"
-  );
+  query
+    .orderBy(
+      "category.sort_order",
+      "ASC"
+    )
+    .distinct(true);
 
   return await query.getMany();
 };

@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { CategoryType } from "../constants/enums";
+import { Product } from "./Product";
 
 @Entity("categories")
 export class Category {
@@ -60,4 +61,7 @@ export class Category {
 
   @OneToMany(() => Category, (category) => category.parent)
   children: Category[];
+
+  @OneToMany(() => Product, (product) => product.category)
+  products: Product[];
 }
