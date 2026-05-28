@@ -9,7 +9,7 @@ const router = Router();
 router.post("/create-category", verifyToken, (req: Request, res: Response) => {
     categoryController.createCategoryController(req, res);
 });
-router.get("/get-category", verifyToken, (req: Request, res: Response) => {
+router.get("/get-category", (req: Request, res: Response) => {
     categoryController.getCategoriesController(req, res);
 });
 router.put("/update-category", verifyToken, (req: Request, res: Response) => {
