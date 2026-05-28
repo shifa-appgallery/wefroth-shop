@@ -378,8 +378,20 @@ export const createProduct = async (
 
 export const getProducts = async (
   offset: number,
-  limit: number
+  limit: number,
+  categoryId?: number
 ) => {
+
+  const whereCondition: any = {
+    is_active: true,
+  };
+
+  // CATEGORY FILTER
+  if (categoryId) {
+    whereCondition.category = {
+      categoryId,
+    };
+  }
 
   const [products, total] =
     await productRepository.findAndCount({
@@ -395,9 +407,7 @@ export const getProducts = async (
         "reviews"
       ],
 
-      where: {
-        is_active: true,
-      },
+      where: whereCondition,
 
       skip: offset,
 
@@ -410,7 +420,6 @@ export const getProducts = async (
     limit,
     data: products,
   };
-
 };
 
 export const updateProduct = async (
