@@ -555,12 +555,14 @@ export const getProductDetails = async ({
 
   if (categoryId) {
 
-    baseQuery.andWhere(
-      "product.categoryId = :categoryId",
-      {
-        categoryId,
-      }
-    );
+    if (categoryId) {
+      baseQuery.andWhere(
+        'product.categoryCategoryId = :categoryId',
+        {
+          categoryId,
+        }
+      );
+    }
   }
 
   const total =
@@ -782,7 +784,7 @@ export const getNewArrivalProducts = async (
 
   // Only check wishlist if user logged in
   if (userId) {
-    
+
     const wishlistItems = await wishListRepo.find({
       where: {
         user_id: Number(userId),
