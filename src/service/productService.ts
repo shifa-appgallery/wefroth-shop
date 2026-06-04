@@ -381,7 +381,7 @@ export const getProducts = async (
   limit: number,
   categoryId?: number,
   gender?: string,
-  slug?: string
+  categorySlug?: string
 ) => {
 
   const whereCondition: any = {
@@ -405,9 +405,9 @@ export const getProducts = async (
       categoryId: In(categoryIds),
     };
   }
-  else if (slug) {
+  else if (categorySlug) {
     const category = await categoryRepository.findOne({
-      where: { slug },
+      where: { slug: categorySlug },
       relations: ["children"],
     });
 

@@ -32,7 +32,7 @@ export const getProductsController = async (
             limit = 10,
             categoryId,
             gender,
-            slug
+            categorySlug
         } = req.query;
         const response = await getProducts(
             Number(offset),
@@ -43,7 +43,7 @@ export const getProductsController = async (
             gender
                 ? String(gender)
                 : undefined,
-            slug as string
+            categorySlug as string
         );
 
         return res.status(200).json({
