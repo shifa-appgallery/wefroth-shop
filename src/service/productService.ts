@@ -1,4 +1,4 @@
-import { MoreThanOrEqual } from "typeorm";
+import { In, MoreThanOrEqual } from "typeorm";
 import { AppDataSource } from "../config/data-source";
 import { Category } from "../entities/Category";
 import { Color } from "../entities/Color";
@@ -390,8 +390,18 @@ export const getProducts = async (
   // CATEGORY FILTER
   if (categoryId) {
 
-    whereCondition.category = {
+    const category = await categoryRepository.findOne({
+      where: { categoryId },
+      relations: ["children"],
+    });
+
+    const categoryIds = [
       categoryId,
+      ...(category?.children?.map(child => child.categoryId) || []),
+    ];
+
+    whereCondition.category = {
+      categoryId: In(categoryIds),
     };
   }
 
