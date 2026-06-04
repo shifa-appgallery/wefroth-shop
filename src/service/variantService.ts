@@ -3,18 +3,20 @@ import { Color } from "../entities/Color";
 import { Product } from "../entities/Product";
 import { ProductVariant } from "../entities/ProductVariant";
 import { Size } from "../entities/Size";
+import { VariantImage } from "../entities/VanriantImage";
 
 const variantRepository = AppDataSource.getRepository(ProductVariant);
 const productRepository = AppDataSource.getRepository(Product);
 const colorRepository = AppDataSource.getRepository(Color);
 const sizeRepository = AppDataSource.getRepository(Size);
+const variantImageRepo = AppDataSource.getRepository(VariantImage)
 
 export const createVariant = async (
   body: any,
   userId: number
 ) => {
 
-  // check product
+  // CHECK PRODUCT
   const existingProduct = await productRepository.findOne({
     where: {
       productId: body.productId,
@@ -75,7 +77,7 @@ export const createVariant = async (
     .join("-")
     .toUpperCase();
 
-  // check sku duplicate
+  // CHECK DUPLICATE SKU
   const existingSku = await variantRepository.findOne({
     where: {
       sku,
@@ -86,6 +88,7 @@ export const createVariant = async (
     throw new Error("Variant already exists");
   }
 
+  // CREATE VARIANT
   const variant = variantRepository.create({
     product: existingProduct,
 
@@ -100,13 +103,67 @@ export const createVariant = async (
     price: body.price,
 
     stock: body.stock,
-    discount_percentage: body.discount_percentage,
-    discounted_price: body.discounted_price,
+
+    discount_percentage:
+      body.discount_percentage,
+
+    discounted_price:
+      body.discounted_price,
 
     created_by: userId,
   });
 
-  return await variantRepository.save(variant);
+  const savedVariant =
+    await variantRepository.save(
+      variant
+    );
+
+  // CREATE VARIANT IMAGES
+  if (
+    body.images &&
+    Array.isArray(body.images) &&
+    body.images.length > 0
+  ) {
+
+    const imageEntities =
+      body.images.map((img: any) =>
+        variantImageRepo.create({
+
+          image_url:
+            img.image_url,
+
+          alt_text:
+            img.alt_text || null,
+
+          is_active:
+            img.is_active ?? true,
+
+          created_by:
+            userId,
+
+          variant:
+            savedVariant,
+        })
+      );
+
+    await variantImageRepo.save(
+      imageEntities
+    );
+  }
+
+  // RETURN VARIANT WITH IMAGES
+  return await variantRepository.findOne({
+    where: {
+      variantId:
+        savedVariant.variantId,
+    },
+    relations: [
+      "product",
+      "color",
+      "size",
+      "variantImages",
+    ],
+  });
 };
 
 export const getVariants = async () => {
