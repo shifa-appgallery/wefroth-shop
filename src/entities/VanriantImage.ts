@@ -31,6 +31,9 @@ export class VariantImage {
   @Column({ nullable: true })
   alt_text: string;
 
+  @Column({ default: false })
+  is_thumbnail: boolean;
+
   @Column({ default: true })
   is_active: boolean;
 

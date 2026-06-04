@@ -137,6 +137,8 @@ export const createVariant = async (
 
           is_active:
             img.is_active ?? true,
+            
+          is_thumbnail: img.is_thumbnail ?? false,
 
           created_by:
             userId,
