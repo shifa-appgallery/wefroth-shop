@@ -380,7 +380,8 @@ export const getProducts = async (
   offset: number,
   limit: number,
   categoryId?: number,
-  gender?: string
+  gender?: string,
+  slug?: string
 ) => {
 
   const whereCondition: any = {
@@ -403,6 +404,23 @@ export const getProducts = async (
     whereCondition.category = {
       categoryId: In(categoryIds),
     };
+  }
+  else if (slug) {
+    const category = await categoryRepository.findOne({
+      where: { slug },
+      relations: ["children"],
+    });
+
+    if (category) {
+      const categoryIds = [
+        category.categoryId,
+        ...(category.children?.map(child => child.categoryId) || []),
+      ];
+
+      whereCondition.category = {
+        categoryId: In(categoryIds),
+      };
+    }
   }
 
   // GENDER FILTER

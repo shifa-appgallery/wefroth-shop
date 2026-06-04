@@ -28,6 +28,7 @@ export const getCategoriesController = async (
   try {
     let isActive: boolean | undefined;
     let type: string | undefined;
+    let isAdmin: boolean | false;
 
     if (req.query.isActive !== undefined) {
       isActive = req.query.isActive === "true";
@@ -37,11 +38,11 @@ export const getCategoriesController = async (
       type = String(req.query.type);
     }
 
-    if (req.query.isActive !== undefined) {
-      isActive = req.query.isActive === "true";
+    if (req.query.isAdmin) {
+      isAdmin = req.query.isAdmin === "true";
     }
 
-    const response = await getCategories(isActive, type);
+    const response = await getCategories(isActive, type, isAdmin);
 
     return res.status(200).json({
       success: true,

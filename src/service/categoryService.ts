@@ -61,9 +61,9 @@ export const createCategory = async (
 
 export const getCategories = async (
   isActive?: boolean,
-  type?: string
+  type?: string,
+  isAdmin: boolean = false
 ) => {
-
   const query = categoryRepository
     .createQueryBuilder("category")
 
@@ -128,14 +128,16 @@ export const getCategories = async (
     `, { type });
   }
 
-  // CATEGORY OR CHILD CATEGORY MUST HAVE PRODUCTS
-  query.andWhere(`
+  // FOR USER: ONLY CATEGORIES HAVING PRODUCTS
+  if (!isAdmin) {
+    query.andWhere(`
     (
       product.productId IS NOT NULL
       OR
       childProduct.productId IS NOT NULL
     )
   `);
+  }
 
   query
     .orderBy(
@@ -148,25 +150,20 @@ export const getCategories = async (
     await query.getMany();
 
   // REMOVE EMPTY CHILDREN
-  const filteredCategories =
-    categories.map((category: any) => {
+  const filteredCategories = categories.map((category: any) => {
 
-      category.children =
-        category.children.filter(
-          (child: any) => {
+    if (!isAdmin) {
+      category.children = category.children.filter(
+        (child: any) =>
+          categories.some(
+            (cat: any) =>
+              cat.categoryId === child.categoryId
+          )
+      );
+    }
 
-            // KEEP ONLY CHILDREN
-            // HAVING PRODUCTS
-
-            return categories.some(
-              (cat: any) =>
-                cat.categoryId === child.categoryId
-            );
-          }
-        );
-
-      return category;
-    });
+    return category;
+  });
 
   return filteredCategories;
 };
