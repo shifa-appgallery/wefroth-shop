@@ -173,37 +173,87 @@ export const updateCategory = async (
   userId: number
 ) => {
 
-  const existingCategory = await categoryRepository.findOne({
-    where: { categoryId },
-  });
+  const existingCategory =
+    await categoryRepository.findOne({
+      where: { categoryId },
+      relations: ["parent"],
+    });
 
   if (!existingCategory) {
     throw new Error("Category not found");
   }
 
-  // Update selected category at last
-  await categoryRepository.update(categoryId, {
+  let parentCategory = existingCategory.parent;
 
-    categoryName:
-      body.categoryName ??
-      existingCategory.categoryName,
+  // UPDATE PARENT CATEGORY
+  if (body.parent !== undefined) {
 
-    slug:
-      body.slug ??
-      existingCategory.slug,
+    if (body.parent === null) {
 
-    categoryIcon:
-      body.categoryIcon ??
-      existingCategory.categoryIcon,
+      parentCategory = null as any;
 
-    type: body.type ?? existingCategory.type,
+    } else {
 
-    updated_by: userId,
-  });
+      parentCategory =
+        await categoryRepository.findOne({
+          where: {
+            categoryId: Number(body.parent),
+          },
+        });
+
+      if (!parentCategory) {
+        throw new Error("Parent category not found");
+      }
+
+      // Prevent self-parenting
+      if (
+        parentCategory.categoryId ===
+        categoryId
+      ) {
+        throw new Error(
+          "Category cannot be its own parent"
+        );
+      }
+    }
+  }
+
+  await categoryRepository.update(
+    categoryId,
+    {
+      categoryName:
+        body.categoryName ??
+        existingCategory.categoryName,
+
+      slug:
+        body.slug ??
+        existingCategory.slug,
+
+      categoryIcon:
+        body.categoryIcon ??
+        existingCategory.categoryIcon,
+
+      type:
+        body.type ??
+        existingCategory.type,
+
+      updated_by: userId,
+    }
+  );
+
+  // Update relation separately
+  existingCategory.parent =
+    parentCategory;
+
+  await categoryRepository.save(
+    existingCategory
+  );
 
   return await categoryRepository.findOne({
     where: { categoryId },
-    relations: ["parent", "children"],
+    relations: [
+      "parent",
+      "children",
+    ],
   });
 };
 
