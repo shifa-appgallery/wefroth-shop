@@ -385,7 +385,9 @@ export const getProducts = async (
   sizeId?: number,
   colorId?: number,
   discount?: number,
-  searchTerm?: string
+  searchTerm?: string,
+  type?: string,
+  userId?: number
 ) => {
   let categoryIds: number[] = [];
 
@@ -458,15 +460,58 @@ export const getProducts = async (
       }
     );
   }
+
+  if (type === "newArrival") {
+    const last10Days = new Date();;
+
+    last10Days.setDate(
+      last10Days.getDate() - 10
+    );
+
+    query.andWhere(
+      "product.created_at >= :last10Days",
+      { last10Days }
+    );
+  }
+  if (type === "newArrival") {
+    query.orderBy(
+      "product.created_at",
+      "DESC"
+    );
+  }
   query.skip(offset).take(limit);
 
   const [data, total] = await query.getManyAndCount();
+
+  let wishlistProductIds = new Set<number>();
+
+  if (userId) {
+    const wishlistItems = await wishListRepo.find({
+      where: {
+        user_id: Number(userId),
+        is_active: true,
+      },
+      relations: ["product"],
+    });
+
+    wishlistProductIds = new Set(
+      wishlistItems.map(
+        (item) => item.product.productId
+      )
+    );
+  }
+
+  const updatedProducts = data.map((product) => ({
+    ...product,
+    isAddedToWishlist:
+      wishlistProductIds.has(product.productId),
+  }));
 
   return {
     total,
     offset,
     limit,
-    data,
+    data: updatedProducts,
   };
 };
 export const updateProduct = async (

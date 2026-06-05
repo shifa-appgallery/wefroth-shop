@@ -36,10 +36,13 @@ export const getProductsController = async (
             sizeId,
             colorId,
             discount,
-            searchTerm
-            
-        } = req.query;
+            searchTerm,
+            type
 
+        } = req.query;
+        const userId = req.user?.id
+            ? Number(req.user.id)
+            : null;
 
         const response = await getProducts(
             Number(offset),
@@ -50,7 +53,9 @@ export const getProductsController = async (
             sizeId ? Number(sizeId) : undefined,
             colorId ? Number(colorId) : undefined,
             discount ? Number(discount) : undefined,
-            searchTerm ? String(searchTerm) : undefined
+            searchTerm ? String(searchTerm) : undefined,
+            type ? String(type) : undefined,
+            userId
         );
 
         return res.status(200).json({
