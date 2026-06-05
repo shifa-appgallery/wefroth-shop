@@ -37,7 +37,7 @@ export const getShopProfilesController = async (
 ) => {
   try {
 
-     const teamId = req.query.teamId
+    const teamId = req.query.teamId
       ? parseInt(req.query.teamId as string)
       : undefined;
 
@@ -114,10 +114,10 @@ export const deleteShopProfileController = async (
 
 export const getShopProfileDetailsController = async (req: AuthRequest, res: Response) => {
   try {
-    const { shopProfileId } = req.query;
+    const { teamId } = req.query;
 
     const data = await getShopProfileDetails(
-      Number(shopProfileId)
+      Number(teamId)
     );
 
     return res.status(200).json({

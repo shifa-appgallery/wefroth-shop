@@ -104,12 +104,12 @@ export const deleteShopProfile = async (
 };
 
 export const getShopProfileDetails = async (
-  shopProfileId: number
+  teamId: number
 ) => {
   // Shop Profile
   const shop = await shopRepo.findOne({
     where: {
-      shopProfileId,
+      teamId,
       is_active: true,
     },
   });

@@ -32,31 +32,33 @@ export const getProductsController = async (
             limit = 10,
             categoryId,
             gender,
-            categorySlug
+            categorySlug,
+            sizeId,
+            colorId,
+            discount,
+            
         } = req.query;
+
+
         const response = await getProducts(
             Number(offset),
             Number(limit),
-            categoryId
-                ? Number(categoryId)
-                : undefined,
-            gender
-                ? String(gender)
-                : undefined,
-            categorySlug as string
+            categoryId ? Number(categoryId) : undefined,
+            gender ? String(gender) : undefined,
+            categorySlug ? String(categorySlug) : undefined,
+            sizeId ? Number(sizeId) : undefined,
+            colorId ? Number(colorId) : undefined,
+            discount ? Number(discount) : undefined
         );
 
         return res.status(200).json({
             success: true,
-
             total: response.total,
-
             offset: response.offset,
-
             limit: response.limit,
-
             data: response.data,
         });
+
     } catch (error: any) {
         return res.status(500).json({
             success: false,

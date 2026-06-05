@@ -381,88 +381,85 @@ export const getProducts = async (
   limit: number,
   categoryId?: number,
   gender?: string,
-  categorySlug?: string
+  categorySlug?: string,
+  sizeId?: number,
+  colorId?: number,
+  discount?: number
 ) => {
+  let categoryIds: number[] = [];
 
-  const whereCondition: any = {
-    is_active: true,
-  };
-
-  // CATEGORY FILTER
   if (categoryId) {
-
     const category = await categoryRepository.findOne({
       where: { categoryId },
       relations: ["children"],
     });
 
-    const categoryIds = [
+    categoryIds = [
       categoryId,
-      ...(category?.children?.map(child => child.categoryId) || []),
+      ...(category?.children?.map((c) => c.categoryId) || []),
     ];
-
-    whereCondition.category = {
-      categoryId: In(categoryIds),
-    };
-  }
-  else if (categorySlug) {
+  } else if (categorySlug) {
     const category = await categoryRepository.findOne({
       where: { slug: categorySlug },
       relations: ["children"],
     });
 
     if (category) {
-      const categoryIds = [
+      categoryIds = [
         category.categoryId,
-        ...(category.children?.map(child => child.categoryId) || []),
+        ...(category.children?.map((c) => c.categoryId) || []),
       ];
-
-      whereCondition.category = {
-        categoryId: In(categoryIds),
-      };
     }
   }
 
-  // GENDER FILTER
-  if (
-    gender &&
-    gender !== "ALL"
-  ) {
+  const query = productRepository
+    .createQueryBuilder("product")
+    .leftJoinAndSelect("product.category", "category")
+    .leftJoinAndSelect("product.gender", "gender")
+    .leftJoinAndSelect("product.variants", "variant")
+    .leftJoinAndSelect("variant.color", "color")
+    .leftJoinAndSelect("variant.size", "size")
+    .leftJoinAndSelect("variant.variantImages", "variantImages")
+    .leftJoinAndSelect("product.media", "media")
+    .leftJoinAndSelect("product.reviews", "reviews")
+    .where("product.is_active = :isActive", { isActive: true });
 
-    whereCondition.gender = {
-      name: gender,
-    };
+  if (categoryIds.length > 0) {
+    query.andWhere("category.categoryId IN (:...categoryIds)", {
+      categoryIds,
+    });
   }
 
-  const [products, total] =
-    await productRepository.findAndCount({
+  if (gender && gender !== "ALL") {
+    query.andWhere("gender.name = :gender", { gender });
+  }
 
-      relations: [
-        "category",
-        "gender",
-        "variants",
-        "variants.variantImages",
-        "variants.color",
-        "variants.size",
-        "media",
-        "reviews"
-      ],
+  if (colorId) {
+    query.andWhere("color.colorId = :colorId", { colorId });
+  }
 
-      where: whereCondition,
+  if (sizeId) {
+    query.andWhere("size.sizeId = :sizeId", { sizeId });
+  }
 
-      skip: offset,
+  if (discount !== undefined && discount !== null) {
+    query.andWhere(
+      "product.discount_percentage >= :discount",
+      { discount }
+    );
+  }
 
-      take: limit,
-    });
+  query.skip(offset).take(limit);
+
+  const [data, total] = await query.getManyAndCount();
 
   return {
     total,
     offset,
     limit,
-    data: products,
+    data,
   };
 };
-
 export const updateProduct = async (
   productId: number,
   body: any,
