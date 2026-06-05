@@ -389,7 +389,8 @@ export const getProducts = async (
   type?: string,
   userId?: number,
   minPrice?: number,
-  maxPrice?: number
+  maxPrice?: number,
+  sku?: string
 ) => {
   let categoryIds: number[] = [];
 
@@ -523,6 +524,14 @@ export const getProducts = async (
         { maxPrice }
       );
     }
+  }
+  if (sku?.trim()) {
+    query.andWhere(
+      "variant.sku = :sku",
+      {
+        sku: sku.trim(),
+      }
+    );
   }
   query.skip(offset).take(limit);
 

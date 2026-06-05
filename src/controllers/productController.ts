@@ -39,7 +39,8 @@ export const getProductsController = async (
             searchTerm,
             type,
             minPrice,
-            maxPrice
+            maxPrice,
+            sku
 
         } = req.query;
         const userId = req.user?.id
@@ -59,7 +60,8 @@ export const getProductsController = async (
             type ? String(type) : undefined,
             userId,
             minPrice ? Number(minPrice) : undefined,
-            maxPrice ? Number(maxPrice) : undefined
+            maxPrice ? Number(maxPrice) : undefined,
+             sku ? String(sku) : undefined
         );
 
         return res.status(200).json({
