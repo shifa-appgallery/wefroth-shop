@@ -9,7 +9,7 @@ const router = Router();
 router.post("/create-gender", verifyToken, (req: Request, res: Response) => {
     genderController.createGender(req, res);
 });
-router.get("/get-gender", verifyToken, (req: Request, res: Response) => {
+router.get("/get-gender", (req: Request, res: Response) => {
     genderController.getAllGenders(req, res);
 });
 router.put("/update-gender", verifyToken, (req: Request, res: Response) => {

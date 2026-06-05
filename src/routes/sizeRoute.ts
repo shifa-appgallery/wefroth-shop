@@ -9,10 +9,10 @@ const router = Router();
 router.post("/create-size", verifyToken, (req: Request, res: Response) => {
     sizeController.createSize(req, res);
 });
-router.get("/get-size", verifyToken, (req: Request, res: Response) => {
+router.get("/get-size", (req: Request, res: Response) => {
     sizeController.getAllSizes(req, res);
 });
-router.get("/get-size-by-id", verifyToken, (req: Request, res: Response) => {
+router.get("/get-size-by-id", (req: Request, res: Response) => {
     sizeController.getSizeById(req, res);
 });
 router.put("/update-size", verifyToken, (req: Request, res: Response) => {
