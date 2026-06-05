@@ -384,7 +384,8 @@ export const getProducts = async (
   categorySlug?: string,
   sizeId?: number,
   colorId?: number,
-  discount?: number
+  discount?: number,
+  searchTerm?: string
 ) => {
   let categoryIds: number[] = [];
 
@@ -449,6 +450,14 @@ export const getProducts = async (
     );
   }
 
+  if (searchTerm?.trim()) {
+    query.andWhere(
+      "product.productName ILIKE :searchTerm",
+      {
+        searchTerm: `%${searchTerm.trim()}%`,
+      }
+    );
+  }
   query.skip(offset).take(limit);
 
   const [data, total] = await query.getManyAndCount();

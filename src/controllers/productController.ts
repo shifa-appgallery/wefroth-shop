@@ -36,6 +36,7 @@ export const getProductsController = async (
             sizeId,
             colorId,
             discount,
+            searchTerm
             
         } = req.query;
 
@@ -48,7 +49,8 @@ export const getProductsController = async (
             categorySlug ? String(categorySlug) : undefined,
             sizeId ? Number(sizeId) : undefined,
             colorId ? Number(colorId) : undefined,
-            discount ? Number(discount) : undefined
+            discount ? Number(discount) : undefined,
+            searchTerm ? String(searchTerm) : undefined
         );
 
         return res.status(200).json({
