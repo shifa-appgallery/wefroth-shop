@@ -34,6 +34,7 @@ export class OrderItem {
   @Column({
     type: "enum",
     enum: SellerType,
+    nullable: true
   })
   seller_type: SellerType;
 

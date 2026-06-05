@@ -17,7 +17,7 @@ export class Cart {
   cartId: number;
 
   @Column("int")
-  user_id: string;
+  user_id: number;
 
   @Column({ default: true })
   is_active: boolean;

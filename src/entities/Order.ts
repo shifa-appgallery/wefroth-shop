@@ -19,6 +19,7 @@ import {
   OrderStatus,
   PaymentStatus,
 } from "../constants/enums";
+import { Cart } from "./Cart";
 
 @Entity("orders")
 export class Order {
@@ -106,6 +107,11 @@ export class Order {
     cascade: true,
   })
   items: OrderItem[];
+
+  @ManyToOne(() => Cart, {
+    eager: true,
+  })
+  cart: Cart;
 
   @OneToMany(() => Transaction, (transaction) => transaction.order)
   transactions: Transaction[];

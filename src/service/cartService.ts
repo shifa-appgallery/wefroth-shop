@@ -12,7 +12,7 @@ const variantRepository = AppDataSource.getRepository(ProductVariant);
 export const addToCart = async (body: any, userId: number) => {
     let cart = await cartRepository.findOne({
         where: {
-            user_id: String(userId),
+            user_id: userId,
             is_active: true,
         },
         relations: ["items"],
@@ -20,7 +20,7 @@ export const addToCart = async (body: any, userId: number) => {
 
     if (!cart) {
         cart = cartRepository.create({
-            user_id: String(userId),
+            user_id: userId,
             created_by: userId,
         });
 
@@ -88,7 +88,7 @@ export const getCart = async (
     return await cartRepository.findOne({
 
         where: {
-            user_id: String(userId),
+            user_id: userId,
             is_active: true,
         },
 
@@ -143,7 +143,7 @@ export const removeCartItem = async (cartItemId: number) => {
 export const clearCart = async (userId: number) => {
     const cart = await cartRepository.findOne({
         where: {
-            user_id: String(userId),
+            user_id: userId,
         },
         relations: ["items"],
     });

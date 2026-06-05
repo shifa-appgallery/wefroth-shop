@@ -6,6 +6,8 @@ import { Product } from "../entities/Product";
 import { ProductVariant } from "../entities/ProductVariant";
 import { Coupon } from "../entities/Coupon";
 import { ShippingAddress } from "../entities/ShippingAddress";
+import { Cart } from "../entities/Cart";
+import { CartItem } from "../entities/CartItems";
 
 const orderRepository = AppDataSource.getRepository(Order);
 const orderItemRepository = AppDataSource.getRepository(OrderItem);
@@ -13,52 +15,64 @@ const productRepository = AppDataSource.getRepository(Product);
 const variantRepository = AppDataSource.getRepository(ProductVariant);
 const couponRepository = AppDataSource.getRepository(Coupon);
 const shippingRepository = AppDataSource.getRepository(ShippingAddress);
+const cartRepository = AppDataSource.getRepository(Cart);
+const cartItemRepository = AppDataSource.getRepository(CartItem);
 
 export const createOrder = async (
     body: any,
     userId: number
 ) => {
-    let subtotal = 0;
+    const cart = await cartRepository.findOne({
+        where: {
+            cartId: body.cartId,
+            user_id: userId,
+            is_active: true,
+        },
+        relations: [
+            "items",
+            "items.product",
+            "items.variant",
+        ],
+    });
 
+    if (!cart) {
+        throw new Error("Cart not found");
+    }
+
+    if (!cart.items?.length) {
+        throw new Error("Cart is empty");
+    }
+
+    let subtotal = 0;
     const orderItems: any[] = [];
 
-    for (const item of body.items) {
-        const product = await productRepository.findOne({
-            where: {
-                productId: item.productId,
-            },
-        });
+    for (const cartItem of cart.items) {
+        const product = cartItem.product;
 
-        if (!product) {
-            throw new Error("Product not found");
+        if (!product || !product.is_active) {
+            throw new Error(
+                `Product unavailable: ${product?.productName || "Unknown"}`
+            );
         }
-        let variant = null;
 
-        if (item.variantId) {
-            variant = await variantRepository.findOne({
-                where: {
-                    variantId: item.variantId,
-                },
-            });
-        }
+        const variant = cartItem.variant || null;
 
         const unitPrice = Number(
-            variant ? variant.price : product.base_price
+            variant?.price ?? product.base_price
         );
 
-        const totalPrice = unitPrice * Number(item.quantity);
+        const quantity = Number(cartItem.quantity);
+
+        const totalPrice = unitPrice * quantity;
 
         subtotal += totalPrice;
 
         orderItems.push({
             product,
             variant,
-            seller_type: item.seller_type,
-            seller_id: item.seller_id,
-            quantity: item.quantity,
+            quantity,
             unit_price: unitPrice,
             total_price: totalPrice,
-            commission_amount: item.commission_amount || 0,
             created_by: userId,
         });
     }
@@ -74,26 +88,47 @@ export const createOrder = async (
         });
 
         if (coupon) {
-            discountAmount = Number(coupon.discount_percentage);
+            discountAmount =
+                (subtotal *
+                    Number(coupon.discount_percentage || 0)) /
+                100;
         }
     }
 
-    const shippingAddress = await shippingRepository.findOne({
-        where: {
-            shippingAddressId: body.shippingAddressId,
-        },
-    });
+    const shippingAddress =
+        await shippingRepository.findOne({
+            where: {
+                shippingAddressId:
+                    body.shippingAddressId,
+            },
+        });
 
-    const shippingAmount = Number(body.shipping_amount || 0);
-    const taxAmount = Number(body.tax_amount || 0);
+    if (!shippingAddress) {
+        throw new Error(
+            "Shipping address not found"
+        );
+    }
+
+    const shippingAmount = Number(
+        body.shipping_amount || 0
+    );
+
+    const taxAmount = Number(
+        body.tax_amount || 0
+    );
 
     const totalAmount =
-        subtotal - discountAmount + shippingAmount + taxAmount;
+        subtotal -
+        discountAmount +
+        shippingAmount +
+        taxAmount;
+
     const order = orderRepository.create({
         user_id: userId,
         order_number: `ORD-${Date.now()}`,
-        shipping_address: shippingAddress || null,
+        shipping_address: shippingAddress,
         coupon,
+        cart,
         subtotal,
         discount_amount: discountAmount,
         shipping_amount: shippingAmount,
@@ -104,18 +139,26 @@ export const createOrder = async (
         created_by: userId,
     });
 
-    const savedOrder = await orderRepository.save(order);
+    const savedOrder =
+        await orderRepository.save(order);
 
-    for (const item of orderItems) {
-        const orderItem = orderItemRepository.create({
+    // Save Order Items
+
+    await orderItemRepository.save(
+        orderItems.map((item) => ({
             ...item,
             order: savedOrder,
-        });
-
-        await orderItemRepository.save(orderItem);
-    }
+        }))
+    );
+    // Clear Cart
+    await cartItemRepository.delete({
+        cart: {
+            cartId: cart.cartId,
+        },
+    });
 
     return await getOrderById(savedOrder.orderId);
+    
 };
 
 export const getOrders = async (userId: number) => {
@@ -124,7 +167,7 @@ export const getOrders = async (userId: number) => {
             user_id: userId,
             is_active: true,
         },
-        relations: ["items", "transactions"],
+        relations: ["items", "transactions","cart"],
         order: {
             created_at: "DESC",
         },
