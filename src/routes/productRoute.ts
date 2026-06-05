@@ -9,7 +9,7 @@ const router = Router();
 router.post("/create-product", verifyToken, (req: Request, res: Response) => {
     productController.createProductController(req, res);
 });
-router.get("/get-product", verifyToken, (req: Request, res: Response) => {
+router.get("/get-product", (req: Request, res: Response) => {
     productController.getProductsController(req, res);
 });
 router.put("/update-product", verifyToken, (req: Request, res: Response) => {
