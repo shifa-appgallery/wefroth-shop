@@ -382,12 +382,14 @@ export const getProducts = async (
   categoryId?: number,
   gender?: string,
   categorySlug?: string,
-  sizeId?: number,
-  colorId?: number,
+  sizeId?: string,
+  colorId?: string,
   discount?: number,
   searchTerm?: string,
   type?: string,
-  userId?: number
+  userId?: number,
+  minPrice?: number,
+  maxPrice?: number
 ) => {
   let categoryIds: number[] = [];
 
@@ -415,6 +417,14 @@ export const getProducts = async (
     }
   }
 
+  const colorIds = colorId
+    ? colorId.split(",").map(id => Number(id.trim()))
+    : [];
+
+  const sizeIds = sizeId
+    ? sizeId.split(",").map(id => Number(id.trim()))
+    : [];
+
   const query = productRepository
     .createQueryBuilder("product")
     .leftJoinAndSelect("product.category", "category")
@@ -437,12 +447,18 @@ export const getProducts = async (
     query.andWhere("gender.name = :gender", { gender });
   }
 
-  if (colorId) {
-    query.andWhere("color.colorId = :colorId", { colorId });
+  if (colorIds.length > 0) {
+    query.andWhere(
+      "color.colorId IN (:...colorIds)",
+      { colorIds }
+    );
   }
 
-  if (sizeId) {
-    query.andWhere("size.sizeId = :sizeId", { sizeId });
+  if (sizeIds.length > 0) {
+    query.andWhere(
+      "size.sizeId IN (:...sizeIds)",
+      { sizeIds }
+    );
   }
 
   if (discount !== undefined && discount !== null) {
@@ -478,6 +494,35 @@ export const getProducts = async (
       "product.created_at",
       "DESC"
     );
+  }
+
+  if (
+    minPrice !== undefined &&
+    minPrice !== null &&
+    maxPrice !== undefined &&
+    maxPrice !== null
+  ) {
+    query.andWhere(
+      "product.discounted_price BETWEEN :minPrice AND :maxPrice",
+      {
+        minPrice,
+        maxPrice,
+      }
+    );
+  } else {
+    if (minPrice !== undefined && minPrice !== null) {
+      query.andWhere(
+        "product.discounted_price >= :minPrice",
+        { minPrice }
+      );
+    }
+
+    if (maxPrice !== undefined && maxPrice !== null) {
+      query.andWhere(
+        "product.discounted_price <= :maxPrice",
+        { maxPrice }
+      );
+    }
   }
   query.skip(offset).take(limit);
 

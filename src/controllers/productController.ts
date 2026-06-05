@@ -37,7 +37,9 @@ export const getProductsController = async (
             colorId,
             discount,
             searchTerm,
-            type
+            type,
+            minPrice,
+            maxPrice
 
         } = req.query;
         const userId = req.user?.id
@@ -50,12 +52,14 @@ export const getProductsController = async (
             categoryId ? Number(categoryId) : undefined,
             gender ? String(gender) : undefined,
             categorySlug ? String(categorySlug) : undefined,
-            sizeId ? Number(sizeId) : undefined,
-            colorId ? Number(colorId) : undefined,
+            sizeId ? String(sizeId) : undefined,
+            colorId ? String(colorId) : undefined,
             discount ? Number(discount) : undefined,
             searchTerm ? String(searchTerm) : undefined,
             type ? String(type) : undefined,
-            userId
+            userId,
+            minPrice ? Number(minPrice) : undefined,
+            maxPrice ? Number(maxPrice) : undefined
         );
 
         return res.status(200).json({
