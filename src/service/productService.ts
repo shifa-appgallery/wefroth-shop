@@ -547,7 +547,7 @@ export const getProducts = async (
       },
       relations: ["product"],
     });
-
+console.log(wishlistItems);
     wishlistProductIds = new Set(
       wishlistItems.map(
         (item) => item.product.productId
