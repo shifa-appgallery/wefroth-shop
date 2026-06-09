@@ -41,7 +41,15 @@ export const getShopProfilesController = async (
       ? parseInt(req.query.teamId as string)
       : undefined;
 
-    const response = await getShopProfiles(teamId);
+    const offset = req.query.offset
+      ? parseInt(req.query.offset as string)
+      : 0;
+
+    const limit = req.query.limit
+      ? parseInt(req.query.limit as string)
+      : 10;
+
+    const response = await getShopProfiles(teamId, offset, limit);
 
     return res.status(200).json({
       success: true,

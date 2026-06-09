@@ -45,7 +45,10 @@ export const createShopProfile = async (
   return await shopProfileRepository.save(shopProfile);
 };
 
-export const getShopProfiles = async (teamId?: number) => {
+export const getShopProfiles = async (teamId?: number,
+  offset: number = 0,
+  limit: number = 10
+) => {
 
   const whereCondition: any = {
     is_active: true,
@@ -55,12 +58,21 @@ export const getShopProfiles = async (teamId?: number) => {
     whereCondition.teamId = teamId;
   }
 
-  return await shopProfileRepository.find({
+  const [data, total] = await shopProfileRepository.findAndCount({
     where: whereCondition,
     order: {
       created_at: "DESC",
     },
+    skip: offset,
+    take: limit,
   });
+
+  return {
+    total,
+    offset,
+    limit,
+    data,
+  };
 };
 
 export const updateShopProfile = async (
