@@ -2,7 +2,9 @@ import { Response } from "express";
 import { AppDataSource } from "../config/data-source";
 import { Wishlist } from "../entities/Wishlist";
 import { AuthRequest } from "../middleware/authorization";
+import { Product } from "../entities/Product";
 const wishListRepo = AppDataSource.getRepository(Wishlist);
+const productRepository = AppDataSource.getRepository(Product)
 
 export const createWishList = async (
   req: AuthRequest,
@@ -11,6 +13,16 @@ export const createWishList = async (
   try {
     const { productId } = req.body;
 
+    if (!productId) {
+      throw new Error("productId is required");
+    }
+    const product = await productRepository.findOne({
+      where: { productId },
+    });
+
+    if (!product) {
+      throw new Error("Product not found");
+    }
     const userId = req.user?.id;
 
     // Find wishlist even inactive
@@ -25,7 +37,10 @@ export const createWishList = async (
     });
 
     // Already active
-    if (existWishList?.is_active) {
+    if (
+      existWishList?.is_active &&
+      existWishList.product?.productId === productId
+    ) {
       throw new Error(
         "Product already exists in wishlist."
       );
