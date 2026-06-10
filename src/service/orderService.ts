@@ -167,7 +167,7 @@ export const getOrders = async (userId: number) => {
             user_id: userId,
             is_active: true,
         },
-        relations: ["items", "transactions", "cart", "items.product", "items.variant"],
+        relations: ["items", "transactions", "cart", "items.product", "items.variant", "items.variant.variantImages"],
         order: {
             created_at: "DESC",
         },
