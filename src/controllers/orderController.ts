@@ -28,8 +28,10 @@ export const getOrdersController = async (
 ) => {
   try {
     const userId = req.user.id;
+    const orderId =
+      req.query.orderId ? Number(req.query.orderId) : undefined;
 
-    const response = await getOrders(userId);
+    const response = await getOrders(userId,orderId);
 
     return res.status(200).json({
       success: true,

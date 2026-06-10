@@ -161,13 +161,30 @@ export const createOrder = async (
 
 };
 
-export const getOrders = async (userId: number) => {
+export const getOrders = async (
+    userId: number,
+    orderId?: number
+) => {
+
+    const where: any = {
+        user_id: userId,
+        is_active: true,
+    };
+
+    if (orderId) {
+        where.orderId = orderId;
+    }
+
     return await orderRepository.find({
-        where: {
-            user_id: userId,
-            is_active: true,
-        },
-        relations: ["items", "transactions", "cart", "items.product", "items.variant", "items.variant.variantImages"],
+        where,
+        relations: [
+            "items",
+            "transactions",
+            "cart",
+            "items.product",
+            "items.variant",
+            "items.variant.variantImages"
+        ],
         order: {
             created_at: "DESC",
         },
