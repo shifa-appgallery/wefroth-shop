@@ -158,7 +158,7 @@ export const createOrder = async (
     });
 
     return await getOrderById(savedOrder.orderId);
-    
+
 };
 
 export const getOrders = async (userId: number) => {
@@ -167,7 +167,7 @@ export const getOrders = async (userId: number) => {
             user_id: userId,
             is_active: true,
         },
-        relations: ["items", "transactions","cart"],
+        relations: ["items", "transactions", "cart", "items.product", "items.product.variants"],
         order: {
             created_at: "DESC",
         },
