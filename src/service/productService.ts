@@ -479,22 +479,7 @@ export const getProducts = async (
   }
 
   if (type === "newArrival") {
-    const last10Days = new Date();;
-
-    last10Days.setDate(
-      last10Days.getDate() - 10
-    );
-
-    query.andWhere(
-      "product.created_at >= :last10Days",
-      { last10Days }
-    );
-  }
-  if (type === "newArrival") {
-    query.orderBy(
-      "product.created_at",
-      "DESC"
-    );
+    query.orderBy("product.created_at", "DESC");
   }
 
   if (
@@ -549,7 +534,7 @@ export const getProducts = async (
     });
 
     console.log(wishlistItems);
-    
+
     wishlistProductIds = new Set(
       wishlistItems
         .map(item => item.product?.productId)

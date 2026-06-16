@@ -58,6 +58,26 @@ export const addToCart = async (body: any, userId: number) => {
         }
     }
 
+    let existingCartItem = await cartItemRepository.findOne({
+        where: {
+            cart: {
+                cartId: cart.cartId,
+            },
+            product: {
+                productId: product.productId,
+            },
+            variant: variant
+                ? { variantId: variant.variantId }
+                : null,
+        },
+        relations: ["variant"],
+    });
+
+    if (existingCartItem) {
+        throw new Error("Product already exists in cart");
+    }
+
+
     const quantity = Number(body.quantity || 1);
 
     const unitPrice = Number(
@@ -65,6 +85,7 @@ export const addToCart = async (body: any, userId: number) => {
     );
 
     const totalPrice = quantity * unitPrice;
+
 
     const cartItem = cartItemRepository.create({
         cart,
