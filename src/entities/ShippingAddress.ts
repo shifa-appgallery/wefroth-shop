@@ -6,9 +6,23 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  Unique,
 } from "typeorm";
 
 @Entity("shipping_addresses")
+
+@Unique("unique_shipping_address", [
+  "user_id",
+  "full_name",
+  "mobile_number",
+  "address_line_1",
+  "address_line_2",
+  "city",
+  "state",
+  "country",
+  "postal_code",
+  "emailId"
+])
 export class ShippingAddress {
   @PrimaryGeneratedColumn()
   shippingAddressId: number;
@@ -28,13 +42,16 @@ export class ShippingAddress {
   @Column({ nullable: true })
   address_line_2: string;
 
-  @Column()
+  @Column({ nullable: true })
+  emailId: string;
+
+  @Column({ nullable: true })
   city: string;
 
-  @Column()
+  @Column({ nullable: true })
   state: string;
 
-  @Column()
+  @Column({ nullable: true })
   country: string;
 
   @Column()

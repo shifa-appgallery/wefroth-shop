@@ -1,7 +1,7 @@
 import { Response } from "express";
 
 import { AuthRequest } from "../middleware/authorization";
-import { createShopProfile, deleteShopProfile, getShopProfileDetails, getShopProfiles, updateShopProfile } from "../service/shopProfileService";
+import { createShopProfile, deleteShopProfile, getShopDashboard, getShopProfileDetails, getShopProfiles, updateShopProfile } from "../service/shopProfileService";
 
 export const createShopProfileController = async (
   req: AuthRequest,
@@ -37,8 +37,8 @@ export const getShopProfilesController = async (
 ) => {
   try {
 
-    const teamId = req.query.teamId
-      ? parseInt(req.query.teamId as string)
+    const profileId = req.query.profileId
+      ? parseInt(req.query.profileId as string)
       : undefined;
 
     const offset = req.query.offset
@@ -49,7 +49,7 @@ export const getShopProfilesController = async (
       ? parseInt(req.query.limit as string)
       : 10;
 
-    const response = await getShopProfiles(teamId, offset, limit);
+    const response = await getShopProfiles(profileId, offset, limit);
 
     return res.status(200).json({
       success: true,
@@ -122,10 +122,10 @@ export const deleteShopProfileController = async (
 
 export const getShopProfileDetailsController = async (req: AuthRequest, res: Response) => {
   try {
-    const { teamId } = req.query;
+    const { profileId } = req.query;
 
     const data = await getShopProfileDetails(
-      Number(teamId)
+      Number(profileId)
     );
 
     return res.status(200).json({
@@ -133,6 +133,28 @@ export const getShopProfileDetailsController = async (req: AuthRequest, res: Res
       message: "Shop profile fetched successfully",
       data,
     });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getShopDashboardConsroller = async (req: AuthRequest, res: Response) => {
+  try {
+    const { shopProfileId } = req.query;
+
+    const data = await getShopDashboard(
+      Number(shopProfileId)
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Shop profile fetched successfully",
+      data,
+    });
+
   } catch (error: any) {
     return res.status(500).json({
       success: false,

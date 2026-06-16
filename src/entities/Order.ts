@@ -117,7 +117,11 @@ export class Order {
   transactions: Transaction[];
 
   @Column({ default: true })
-  is_active: boolean;
+  is_active: boolean; @Column({
+    type: "timestamp",
+    nullable: true,
+  })
+  delivered_on: Date;
 
   @Column()
   created_by: number;

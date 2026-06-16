@@ -31,12 +31,24 @@ export const createProduct = async (
 
   try {
 
+    const existingShopProfile = await queryRunner.manager.findOne(ShopProfile, {
+      where: {
+        shopProfileId: body.shopProfileId,
+      },
+    });
+
+    if (!existingShopProfile) {
+      throw new Error("Shop profile not found");
+    }
+
     // CHECK EXISTING PRODUCT
     const existingProduct = await queryRunner.manager.findOne(Product, {
       where: {
         productName: body.productName,
         seller_type: body.seller_type,
-        teamId: body.teamId,
+        shopProfile: {
+          shopProfileId: body.shopProfileId,
+        },
       },
     });
 
@@ -75,7 +87,7 @@ export const createProduct = async (
 
       seller_type: body.seller_type,
 
-      teamId: body.teamId,
+      shopProfile: existingShopProfile,
 
       category: existingCategory,
 
@@ -305,7 +317,7 @@ export const createProduct = async (
           productName: savedProduct.productName,
           description: savedProduct.description,
           seller_type: savedProduct.seller_type,
-          teamId: savedProduct.teamId,
+          shopProfileId: savedProduct.shopProfile?.shopProfileId,
           base_price: savedProduct.base_price,
           discount_percentage:
             savedProduct.discount_percentage,
@@ -390,7 +402,8 @@ export const getProducts = async (
   userId?: number,
   minPrice?: number,
   maxPrice?: number,
-  sku?: string
+  sku?: string,
+  shopProfileId?: number
 ) => {
   let categoryIds: number[] = [];
 
@@ -428,6 +441,7 @@ export const getProducts = async (
 
   const query = productRepository
     .createQueryBuilder("product")
+    .leftJoinAndSelect("product.shopProfile", "shopProfile")
     .leftJoinAndSelect("product.category", "category")
     .leftJoinAndSelect("product.gender", "gender")
     .leftJoinAndSelect("product.variants", "variant")
@@ -516,6 +530,13 @@ export const getProducts = async (
       {
         sku: sku.trim(),
       }
+    );
+  }
+
+  if (shopProfileId !== undefined && shopProfileId !== null) {
+    query.andWhere(
+      "shopProfile.shopProfileId = :shopProfileId",
+      { shopProfileId }
     );
   }
   query.skip(offset).take(limit);
@@ -665,7 +686,7 @@ export const deleteProduct = async (productId: string) => {
 };
 
 export const getProductDetails = async ({
-  teamId,
+  shopProfileId,
   searchTerm,
   categoryId,
   offset = 0,
@@ -684,9 +705,9 @@ export const getProductDetails = async ({
     )
 
     .andWhere(
-      "product.teamId = :teamId",
+      "product.shopProfileId = :shopProfileId",
       {
-        teamId,
+        shopProfileId,
       }
     );
 
@@ -810,7 +831,7 @@ export const getProductDetails = async ({
   const shopProfile =
     await shopProfileRepository.findOne({
       where: {
-        teamId,
+        profileId: shopProfileId,
         is_active: true,
       },
     });

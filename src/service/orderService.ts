@@ -8,6 +8,7 @@ import { Coupon } from "../entities/Coupon";
 import { ShippingAddress } from "../entities/ShippingAddress";
 import { Cart } from "../entities/Cart";
 import { CartItem } from "../entities/CartItems";
+import { OrderStatus } from "../constants/enums";
 
 const orderRepository = AppDataSource.getRepository(Order);
 const orderItemRepository = AppDataSource.getRepository(OrderItem);
@@ -205,11 +206,17 @@ export const updateOrderStatus = async (
     body: any,
     userId: number
 ) => {
-    await orderRepository.update(orderId, {
+    const updateData: any = {
         order_status: body.order_status,
         payment_status: body.payment_status,
         updated_by: userId,
-    });
+    };
+
+    if (body.order_status === OrderStatus.DELIVERED) {
+        updateData.delivered_on = new Date();
+    }
+
+    await orderRepository.update(orderId, updateData);
 
     return await getOrderById(orderId);
 };

@@ -23,4 +23,8 @@ router.get("/get-shop-profile-details", verifyToken, (req: Request, res: Respons
     shopProfileController.getShopProfileDetailsController(req, res);
 });
 
+router.get("/get-shop-dashboard-details", verifyToken, (req: Request, res: Response) => {
+    shopProfileController.getShopDashboardConsroller(req, res);
+});
+
 export default router;

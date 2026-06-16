@@ -6,6 +6,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from "typeorm";
 
 import { Category } from "./Category";
@@ -14,6 +15,7 @@ import { ProductVariant } from "./ProductVariant";
 import { ProductMedia } from "./ProductMedia";
 import { Gender } from "./Gender";
 import { ProductReview } from "./ProductReview";
+import { ShopProfile } from "./ShopProfile";
 
 @Entity("products")
 export class Product {
@@ -33,8 +35,11 @@ export class Product {
   seller_type: SellerType;
 
   // ADD THIS
-  @Column("int", { nullable: true })
-  teamId: number;
+  @ManyToOne(() => ShopProfile, {
+    nullable: true,
+  })
+  @JoinColumn({ name: "shopProfileId" })
+  shopProfile: ShopProfile;
 
   @ManyToOne(() => Category)
   category: Category;

@@ -131,7 +131,7 @@ export const getProductsDetailsController = async (
     try {
 
         const {
-            teamId,
+            shopProfileId,
             searchTerm,
             categoryId,
             offset = 0,
@@ -139,7 +139,7 @@ export const getProductsDetailsController = async (
         } = req.query;
 
         const response = await getProductDetails({
-            teamId: Number(teamId),
+            shopProfileId: Number(shopProfileId),
             searchTerm: String(searchTerm || ""),
             categoryId: String(categoryId || ""),
             offset: Number(offset),
