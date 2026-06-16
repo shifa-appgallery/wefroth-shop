@@ -197,7 +197,14 @@ export const getOrderById = async (orderId: number) => {
         where: {
             orderId,
         },
-        relations: ["items", "transactions"],
+         relations: [
+            "items",
+            "transactions",
+            "cart",
+            "items.product",
+            "items.variant",
+            "items.variant.variantImages"
+        ],
     });
 };
 
