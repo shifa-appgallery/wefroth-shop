@@ -247,61 +247,6 @@ export const getShopDashboard = async (
   );
 
 
-  const getSalesOverview = (
-    startDate: Date,
-    endDate?: Date
-  ) => {
-
-    const query =
-      orderItemRepository
-        .createQueryBuilder("oi")
-
-        .leftJoin(
-          "oi.product",
-          "product"
-        )
-
-        .leftJoin(
-          "oi.order",
-          "order"
-        )
-
-        .select(
-          "COUNT(DISTINCT order.orderId)",
-          "orders"
-        )
-
-        .addSelect(
-          "COALESCE(SUM(oi.quantity),0)",
-          "sales"
-        )
-
-        .addSelect(
-          "COALESCE(SUM(oi.total_price),0)",
-          "revenue"
-        )
-
-        .where(
-          "product.shopProfileId = :shopProfileId",
-          { shopProfileId }
-        )
-
-        .andWhere(
-          "order.created_at >= :startDate",
-          { startDate }
-        );
-
-
-    if (endDate) {
-      query.andWhere(
-        "order.created_at <= :endDate",
-        { endDate }
-      );
-    }
-
-    return query.getRawOne();
-  };
-
 
   const [
     totalProducts,
@@ -315,181 +260,20 @@ export const getShopDashboard = async (
     thisWeekSales,
     lastWeekSales,
   ] = await Promise.all([
-    // Total Products
-    productRepo.count({
-      where: {
-        shopProfile: {
-          shopProfileId,
-        },
-        is_active: true,
-      },
-    }),
-
-    // Total Variants
-    variantRepo
-      .createQueryBuilder("variant")
-      .leftJoin("variant.product", "product")
-      .where(
-        "product.shopProfileId = :shopProfileId",
-        { shopProfileId }
-      )
-      .getCount(),
-
-    // Total Orders, Sales, Revenue
-    orderItemRepository
-      .createQueryBuilder("oi")
-      .leftJoin("oi.product", "product")
-      .select(
-        "COUNT(DISTINCT oi.orderOrderId)",
-        "totalOrders"
-      )
-      .addSelect(
-        "COALESCE(SUM(oi.quantity),0)",
-        "totalSales"
-      )
-      .addSelect(
-        "COALESCE(SUM(oi.total_price),0)",
-        "totalRevenue"
-      )
-      .where(
-        "product.shopProfileId = :shopProfileId",
-        { shopProfileId }
-      )
-      .getRawOne(),
-
-    // Low Stock Products
-    variantRepo
-      .createQueryBuilder("variant")
-      .leftJoinAndSelect(
-        "variant.product",
-        "product"
-      )
-      .where(
-        "product.shopProfileId = :shopProfileId",
-        { shopProfileId }
-      )
-      .andWhere(
-        "variant.stock <= :stock",
-        { stock: 5 }
-      )
-      .orderBy(
-        "variant.stock",
-        "ASC"
-      )
-      .take(5)
-      .getMany(),
-
-    // Latest Products
-    productRepo.find({
-      where: {
-        shopProfile: {
-          shopProfileId,
-        },
-        is_active: true,
-      },
-      order: {
-        created_at: "DESC",
-      },
-      take: 5,
-    }),
-
-    // Category Statistics
-    productRepo
-      .createQueryBuilder("product")
-      .leftJoin(
-        "product.category",
-        "category"
-      )
-      .select(
-        "category.categoryName",
-        "category"
-      )
-      .addSelect(
-        "COUNT(product.productId)",
-        "totalProducts"
-      )
-      .where(
-        "product.shopProfileId = :shopProfileId",
-        { shopProfileId }
-      )
-      .groupBy(
-        "category.categoryName"
-      )
-      .getRawMany(),
-
-    // Recent Orders
-    orderItemRepository
-      .createQueryBuilder("oi")
-      .leftJoinAndSelect(
-        "oi.order",
-        "order"
-      )
-      .leftJoinAndSelect(
-        "oi.product",
-        "product"
-      )
-      .where(
-        "product.shopProfileId = :shopProfileId",
-        { shopProfileId }
-      )
-      .orderBy(
-        "order.created_at",
-        "DESC"
-      )
-      .take(5)
-      .getMany(),
-
-    // Top Selling Products
-    orderItemRepository
-      .createQueryBuilder("oi")
-      .leftJoin(
-        "oi.product",
-        "product"
-      )
-      .select(
-        "product.productId",
-        "productId"
-      )
-      .addSelect(
-        "product.productName",
-        "productName"
-      )
-      .addSelect(
-        "COALESCE(SUM(oi.quantity),0)",
-        "totalSold"
-      )
-      .addSelect(
-        "COALESCE(SUM(oi.total_price),0)",
-        "revenue"
-      )
-      .where(
-        "product.shopProfileId = :shopProfileId",
-        { shopProfileId }
-      )
-      .groupBy(
-        "product.productId"
-      )
-      .addGroupBy(
-        "product.productName"
-      )
-      .orderBy(
-        "SUM(oi.quantity)",
-        "DESC"
-      )
-      .limit(5)
-      .getRawMany(),
-
-    // This Week Sales
+    getTotalProducts(shopProfileId),
+    getTotalVariants(shopProfileId),
+    getSalesStats(shopProfileId),
+    getLowStockProducts(shopProfileId),
+    getLatestProducts(shopProfileId),
+    getCategoryStatistics(shopProfileId),
+    getRecentOrders(shopProfileId),
+    getTopSellingProducts(shopProfileId),
+    getSalesOverview(shopProfileId, startOfThisWeek),
     getSalesOverview(
-      startOfThisWeek
-    ),
-
-    // Last Week Sales
-    getSalesOverview(
+      shopProfileId,
       startOfLastWeek,
       endOfLastWeek
     ),
-
   ]);
   return {
     success: true,
@@ -528,35 +312,8 @@ export const getShopDashboard = async (
 
       // Sales Comparison
       salesOverview: {
-
-        thisWeek: {
-          orders: Number(
-            thisWeekSales?.orders || 0
-          ),
-
-          sales: Number(
-            thisWeekSales?.sales || 0
-          ),
-
-          revenue: Number(
-            thisWeekSales?.revenue || 0
-          ),
-        },
-
-
-        lastWeek: {
-          orders: Number(
-            lastWeekSales?.orders || 0
-          ),
-
-          sales: Number(
-            lastWeekSales?.sales || 0
-          ),
-
-          revenue: Number(
-            lastWeekSales?.revenue || 0
-          ),
-        },
+        thisWeek: formatSalesOverview(thisWeekSales),
+        lastWeek: formatSalesOverview(lastWeekSales),
       },
 
       // Top Selling Products
@@ -635,3 +392,255 @@ export const getShopDashboard = async (
     },
   };
 }
+
+const formatSalesOverview = (data: any[]) => {
+  return data.reduce((acc: any, item: any) => {
+    acc[item.day] = {
+      orders: Number(item.orders),
+      sales: Number(item.sales),
+      revenue: Number(item.revenue),
+    };
+    return acc;
+  }, {});
+};
+
+const getTotalProducts = (
+  shopProfileId: number
+) => {
+  return productRepo.count({
+    where: {
+      shopProfile: {
+        shopProfileId,
+      },
+      is_active: true,
+    },
+  });
+};
+
+const getTotalVariants = (
+  shopProfileId: number
+) => {
+  return variantRepo
+    .createQueryBuilder("variant")
+    .leftJoin(
+      "variant.product",
+      "product"
+    )
+    .where(
+      "product.shopProfileId = :shopProfileId",
+      { shopProfileId }
+    )
+    .getCount();
+};
+
+const getSalesStats = (
+  shopProfileId: number
+) => {
+  return orderItemRepository
+    .createQueryBuilder("oi")
+    .leftJoin(
+      "oi.product",
+      "product"
+    )
+    .select(
+      "COUNT(DISTINCT oi.orderOrderId)",
+      "totalOrders"
+    )
+    .addSelect(
+      "COALESCE(SUM(oi.quantity),0)",
+      "totalSales"
+    )
+    .addSelect(
+      "COALESCE(SUM(oi.total_price),0)",
+      "totalRevenue"
+    )
+    .where(
+      "product.shopProfileId = :shopProfileId",
+      { shopProfileId }
+    )
+    .getRawOne();
+};
+
+const getLowStockProducts = (
+  shopProfileId: number
+) => {
+  return variantRepo
+    .createQueryBuilder("variant")
+    .leftJoinAndSelect(
+      "variant.product",
+      "product"
+    )
+    .where(
+      "product.shopProfileId = :shopProfileId",
+      { shopProfileId }
+    )
+    .andWhere(
+      "variant.stock <= :stock",
+      { stock: 5 }
+    )
+    .orderBy(
+      "variant.stock",
+      "ASC"
+    )
+    .take(5)
+    .getMany();
+};
+
+const getLatestProducts = (
+  shopProfileId: number
+) => {
+  return productRepo.find({
+    where: {
+      shopProfile: {
+        shopProfileId,
+      },
+      is_active: true,
+    },
+    order: {
+      created_at: "DESC",
+    },
+    take: 5,
+  });
+};
+
+const getCategoryStatistics = (
+  shopProfileId: number
+) => {
+  return productRepo
+    .createQueryBuilder("product")
+    .leftJoin(
+      "product.category",
+      "category"
+    )
+    .select(
+      "category.categoryName",
+      "category"
+    )
+    .addSelect(
+      "COUNT(product.productId)",
+      "totalProducts"
+    )
+    .where(
+      "product.shopProfileId = :shopProfileId",
+      { shopProfileId }
+    )
+    .groupBy(
+      "category.categoryName"
+    )
+    .getRawMany();
+};
+
+const getRecentOrders = (
+  shopProfileId: number
+) => {
+  return orderItemRepository
+    .createQueryBuilder("oi")
+    .leftJoinAndSelect(
+      "oi.order",
+      "order"
+    )
+    .leftJoinAndSelect(
+      "oi.product",
+      "product"
+    )
+    .where(
+      "product.shopProfileId = :shopProfileId",
+      { shopProfileId }
+    )
+    .orderBy(
+      "order.created_at",
+      "DESC"
+    )
+    .take(5)
+    .getMany();
+};
+
+const getTopSellingProducts = (
+  shopProfileId: number
+) => {
+  return orderItemRepository
+    .createQueryBuilder("oi")
+    .leftJoin(
+      "oi.product",
+      "product"
+    )
+    .select(
+      "product.productId",
+      "productId"
+    )
+    .addSelect(
+      "product.productName",
+      "productName"
+    )
+    .addSelect(
+      "COALESCE(SUM(oi.quantity),0)",
+      "totalSold"
+    )
+    .addSelect(
+      "COALESCE(SUM(oi.total_price),0)",
+      "revenue"
+    )
+    .where(
+      "product.shopProfileId = :shopProfileId",
+      { shopProfileId }
+    )
+    .groupBy(
+      "product.productId"
+    )
+    .addGroupBy(
+      "product.productName"
+    )
+    .orderBy(
+      "SUM(oi.quantity)",
+      "DESC"
+    )
+    .limit(5)
+    .getRawMany();
+};
+const getSalesOverview = (
+  shopProfileId: number,
+  startDate: Date,
+  endDate?: Date
+) => {
+  const query = orderItemRepository
+    .createQueryBuilder("oi")
+    .leftJoin("oi.product", "product")
+    .leftJoin("oi.order", "order")
+    .select(
+      `TRIM(TO_CHAR("order"."created_at", 'Day'))`,
+      "day"
+    )
+    .addSelect(
+      "COUNT(DISTINCT order.orderId)",
+      "orders"
+    )
+    .addSelect(
+      "COALESCE(SUM(oi.quantity),0)",
+      "sales"
+    )
+    .addSelect(
+      "COALESCE(SUM(oi.total_price),0)",
+      "revenue"
+    )
+    .where(
+      "product.shopProfileId = :shopProfileId",
+      { shopProfileId }
+    )
+    .andWhere(
+      "order.created_at >= :startDate",
+      { startDate }
+    )
+    .groupBy(`DATE("order"."created_at")`)
+    .addGroupBy(
+      `TO_CHAR("order"."created_at", 'Day')`
+    );
+
+  if (endDate) {
+    query.andWhere(
+      "order.created_at <= :endDate",
+      { endDate }
+    );
+  }
+
+  return query.getRawMany();
+};
