@@ -18,5 +18,11 @@ router.get("/get-orders", verifyToken, (req: Request, res: Response) => {
 router.put("/update-order-status", verifyToken, (req: Request, res: Response) => {
     orderController.updateOrderStatusController(req, res);
 });
+router.get("/get-orders-details", verifyToken, (req: Request, res: Response) => {
+    orderController.getOrderDetailsController(req, res);
+});
+router.get("/get-orders-list", verifyToken, (req: Request, res: Response) => {
+    orderController.getOrderListController(req, res);
+});
 
 export default router;
