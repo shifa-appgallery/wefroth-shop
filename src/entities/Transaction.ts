@@ -80,7 +80,7 @@ export class Transaction {
   @Column({ default: true })
   is_active: boolean;
 
-  @Column()
+  @Column({ nullable: true })
   created_by: number;
 
   @Column({ nullable: true })

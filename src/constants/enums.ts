@@ -30,6 +30,8 @@ export enum TransactionType {
 export enum TransactionStatus {
   PENDING = "PENDING",
   SETTLED = "SETTLED",
+  FAILED = "FAILED",
+  REFUNDED = "REFUNDED",
 }
 
 export enum CouponType {
