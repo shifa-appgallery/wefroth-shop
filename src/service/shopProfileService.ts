@@ -708,8 +708,8 @@ const getTopSellingProducts = (
     .addGroupBy("variant.price")
     .addGroupBy("product.productId")
     .addGroupBy("product.productName")
-    .addGroupBy("color.colorName")
-    .addGroupBy("size.sizeName")
+    .addGroupBy("color.name")
+    .addGroupBy("size.name")
     .orderBy("SUM(oi.quantity)", "DESC")
     .limit(5)
     .getRawMany();
