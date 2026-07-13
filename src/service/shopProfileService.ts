@@ -257,29 +257,36 @@ export const getShopDashboard = async (
   const now = new Date();
 
   const startOfThisWeek = new Date(now);
-  startOfThisWeek.setDate(
-    now.getDate() - now.getDay()
-  );
+  startOfThisWeek.setDate(now.getDate() - now.getDay());
   startOfThisWeek.setHours(0, 0, 0, 0);
 
-
   const startOfLastWeek = new Date(startOfThisWeek);
-  startOfLastWeek.setDate(
-    startOfLastWeek.getDate() - 7
-  );
-
+  startOfLastWeek.setDate(startOfLastWeek.getDate() - 7);
 
   const endOfLastWeek = new Date(startOfThisWeek);
-  endOfLastWeek.setMilliseconds(
-    endOfLastWeek.getMilliseconds() - 1
-  );
+  endOfLastWeek.setMilliseconds(-1);
 
+  const startOfPreviousWeek = new Date(startOfLastWeek);
+  startOfPreviousWeek.setDate(startOfPreviousWeek.getDate() - 7);
+
+  const endOfPreviousWeek = new Date(startOfLastWeek);
+  endOfPreviousWeek.setMilliseconds(-1);
 
 
   const [
     totalProducts,
     totalVariants,
     salesStats,
+
+    lastWeekProducts,
+    previousWeekProducts,
+
+    lastWeekVariants,
+    previousWeekVariants,
+
+    lastWeekStats,
+    previousWeekStats,
+
     lowStockProducts,
     latestProducts,
     categoryStats,
@@ -291,6 +298,39 @@ export const getShopDashboard = async (
     getTotalProducts(shopProfileId),
     getTotalVariants(shopProfileId),
     getSalesStats(shopProfileId),
+
+    getTotalProducts(
+      shopProfileId,
+      startOfLastWeek,
+      endOfLastWeek
+    ),
+
+    getTotalProducts(
+      shopProfileId,
+      startOfPreviousWeek,
+      endOfPreviousWeek
+    ),
+
+    getTotalVariants(
+      shopProfileId,
+      startOfLastWeek,
+      endOfLastWeek
+    ),
+    getTotalVariants(
+      shopProfileId,
+      startOfPreviousWeek,
+      endOfPreviousWeek
+    ),
+    getSalesStats(
+      shopProfileId,
+      startOfLastWeek,
+      endOfLastWeek
+    ),
+    getSalesStats(
+      shopProfileId,
+      startOfPreviousWeek,
+      endOfPreviousWeek
+    ),
     getLowStockProducts(shopProfileId),
     getLatestProducts(shopProfileId),
     getCategoryStatistics(shopProfileId),
@@ -304,114 +344,150 @@ export const getShopDashboard = async (
     ),
   ]);
   return {
-      // Shop Profile Details
-      shopProfile: {
-        shopProfileId: shop.shopProfileId,
-        displayName: shop.display_name,
-        logo: shop.logo_url,
-        banner: shop.banner_url,
-        themeColor: shop.theme_color,
-        sellerType: shop.seller_type,
-      },
+    // Shop Profile Details
+    shopProfile: {
+      shopProfileId: shop.shopProfileId,
+      displayName: shop.display_name,
+      logo: shop.logo_url,
+      banner: shop.banner_url,
+      themeColor: shop.theme_color,
+      sellerType: shop.seller_type,
+    },
 
-      // Overall Statistics
-      statistics: {
-        totalProducts,
-
-        totalVariants,
-
-        totalOrders: Number(
-          salesStats?.totalOrders || 0
-        ),
-
-        totalSales: Number(
-          salesStats?.totalSales || 0
-        ),
-
-        totalRevenue: Number(
-          salesStats?.totalRevenue || 0
+    // Overall Statistics
+    statistics: {
+      products: {
+        total: totalProducts,
+        lastWeek: lastWeekProducts,
+        previousWeek: previousWeekProducts,
+        change: calculateChange(
+          lastWeekProducts,
+          previousWeekProducts
         ),
       },
 
-      // Sales Comparison
-      salesOverview: {
-        thisWeek: formatSalesOverview(thisWeekSales),
-        lastWeek: formatSalesOverview(lastWeekSales),
+      variants: {
+        total: totalVariants,
+        lastWeek: lastWeekVariants,
+        previousWeek: previousWeekVariants,
+        change: calculateChange(
+          lastWeekVariants,
+          previousWeekVariants
+        ),
       },
 
-      // Top Selling Products
-      topSellingProducts: topSellingProducts.map(
-        (item: any) => ({
-          productId: Number(item.productId),
+      orders: {
+        total: Number(salesStats.totalOrders),
+        lastWeek: Number(lastWeekStats.totalOrders),
+        previousWeek: Number(previousWeekStats.totalOrders),
+        change: calculateChange(
+          Number(lastWeekStats.totalOrders),
+          Number(previousWeekStats.totalOrders)
+        ),
+      },
 
-          productName: item.productName,
+      sales: {
+        total: Number(salesStats.totalSales),
+        lastWeek: Number(lastWeekStats.totalSales),
+        previousWeek: Number(previousWeekStats.totalSales),
+        change: calculateChange(
+          Number(lastWeekStats.totalSales),
+          Number(previousWeekStats.totalSales)
+        ),
+      },
 
-          totalSold: Number(
-            item.totalSold || 0
+      revenue: {
+        total: Number(salesStats.totalRevenue),
+        lastWeek: Number(lastWeekStats.totalRevenue),
+        previousWeek: Number(previousWeekStats.totalRevenue),
+        change: calculateChange(
+          Number(lastWeekStats.totalRevenue),
+          Number(previousWeekStats.totalRevenue)
+        ),
+      },
+    },
+
+    // Sales Comparison
+    salesOverview: {
+      thisWeek: formatSalesOverview(thisWeekSales),
+      lastWeek: formatSalesOverview(lastWeekSales),
+    },
+
+    // Top Selling Products
+    topSellingProducts: topSellingProducts.map((item: any) => ({
+      productId: Number(item.productId),
+      productName: item.productName,
+
+      variantId: Number(item.variantId),
+      variantName: item.variantName,
+      sku: item.sku,
+
+      color: item.color,
+      size: item.size,
+
+      images: item.images ?? [],
+
+      price: Number(item.price),
+      totalSold: Number(item.totalSold),
+      revenue: Number(item.revenue),
+    })),
+
+    // Recent Orders
+    recentOrders: recentOrders.map(
+      (item: any) => ({
+        orderId: item.order.orderId,
+
+        orderNumber:
+          item.order.order_number,
+
+        orderStatus:
+          item.order.order_status,
+
+        productId:
+          item.product.productId,
+
+        productName:
+          item.product.productName,
+
+        quantity:
+          item.quantity,
+
+        amount:
+          Number(item.total_price),
+
+        orderedAt:
+          item.order.created_at,
+      })
+    ),
+
+    // Low Stock Products
+    lowStockProducts: lowStockProducts.map(
+      (item: any) => ({
+        variantId: item.variantId,
+
+        productId:
+          item.product.productId,
+
+        productName:
+          item.product.productName,
+
+        stock:
+          item.stock,
+      })
+    ),
+
+    // Category Wise Product Count
+    categoryStatistics: categoryStats.map(
+      (item: any) => ({
+        category:
+          item.category,
+
+        totalProducts:
+          Number(
+            item.totalProducts
           ),
-
-          revenue: Number(
-            item.revenue || 0
-          ),
-        })
-      ),
-
-      // Recent Orders
-      recentOrders: recentOrders.map(
-        (item: any) => ({
-          orderId: item.order.orderId,
-
-          orderNumber:
-            item.order.order_number,
-
-          orderStatus:
-            item.order.order_status,
-
-          productId:
-            item.product.productId,
-
-          productName:
-            item.product.productName,
-
-          quantity:
-            item.quantity,
-
-          amount:
-            Number(item.total_price),
-
-          orderedAt:
-            item.order.created_at,
-        })
-      ),
-
-      // Low Stock Products
-      lowStockProducts: lowStockProducts.map(
-        (item: any) => ({
-          variantId: item.variantId,
-
-          productId:
-            item.product.productId,
-
-          productName:
-            item.product.productName,
-
-          stock:
-            item.stock,
-        })
-      ),
-
-      // Category Wise Product Count
-      categoryStatistics: categoryStats.map(
-        (item: any) => ({
-          category:
-            item.category,
-
-          totalProducts:
-            Number(
-              item.totalProducts
-            ),
-        })
-      ),
+      })
+    ),
   };
 }
 
@@ -426,44 +502,61 @@ const formatSalesOverview = (data: any[]) => {
   }, {});
 };
 
-const getTotalProducts = (
-  shopProfileId: number
+const getTotalProducts = async (
+  shopProfileId: number,
+  startDate?: Date,
+  endDate?: Date
 ) => {
-  return productRepo.count({
-    where: {
-      shopProfile: {
-        shopProfileId,
-      },
-      is_active: true,
-    },
-  });
-};
-
-const getTotalVariants = (
-  shopProfileId: number
-) => {
-  return variantRepo
-    .createQueryBuilder("variant")
-    .leftJoin(
-      "variant.product",
-      "product"
-    )
+  const query = productRepo
+    .createQueryBuilder("product")
     .where(
       "product.shopProfileId = :shopProfileId",
       { shopProfileId }
     )
-    .getCount();
+    .andWhere("product.is_active = true");
+
+  if (startDate && endDate) {
+    query.andWhere(
+      "product.created_at BETWEEN :startDate AND :endDate",
+      { startDate, endDate }
+    );
+  }
+
+  return query.getCount();
 };
 
-const getSalesStats = (
-  shopProfileId: number
+const getTotalVariants = async (
+  shopProfileId: number,
+  startDate?: Date,
+  endDate?: Date
 ) => {
-  return orderItemRepository
+  const query = variantRepo
+    .createQueryBuilder("variant")
+    .leftJoin("variant.product", "product")
+    .where(
+      "product.shopProfileId = :shopProfileId",
+      { shopProfileId }
+    );
+
+  if (startDate && endDate) {
+    query.andWhere(
+      "variant.created_at BETWEEN :startDate AND :endDate",
+      { startDate, endDate }
+    );
+  }
+
+  return query.getCount();
+};
+
+const getSalesStats = async (
+  shopProfileId: number,
+  startDate?: Date,
+  endDate?: Date
+) => {
+  const query = orderItemRepository
     .createQueryBuilder("oi")
-    .leftJoin(
-      "oi.product",
-      "product"
-    )
+    .leftJoin("oi.product", "product")
+    .leftJoin("oi.order", "order")
     .select(
       "COUNT(DISTINCT oi.orderOrderId)",
       "totalOrders"
@@ -479,10 +572,17 @@ const getSalesStats = (
     .where(
       "product.shopProfileId = :shopProfileId",
       { shopProfileId }
-    )
-    .getRawOne();
-};
+    );
 
+  if (startDate && endDate) {
+    query.andWhere(
+      "order.created_at BETWEEN :startDate AND :endDate",
+      { startDate, endDate }
+    );
+  }
+
+  return query.getRawOne();
+};
 const getLowStockProducts = (
   shopProfileId: number
 ) => {
@@ -580,42 +680,37 @@ const getRecentOrders = (
 const getTopSellingProducts = (
   shopProfileId: number
 ) => {
-  return orderItemRepository
-    .createQueryBuilder("oi")
-    .leftJoin(
-      "oi.product",
-      "product"
-    )
-    .select(
-      "product.productId",
-      "productId"
-    )
-    .addSelect(
-      "product.productName",
-      "productName"
-    )
-    .addSelect(
-      "COALESCE(SUM(oi.quantity),0)",
-      "totalSold"
-    )
-    .addSelect(
-      "COALESCE(SUM(oi.total_price),0)",
-      "revenue"
-    )
+  return variantRepo
+    .createQueryBuilder("variant")
+    .leftJoin("variant.product", "product")
+    .leftJoin("variant.variantImages", "image")
+    .leftJoin("variant.color", "color")
+    .leftJoin("variant.size", "size")
+    .leftJoin("order_items", "oi", "oi.variantVariantId = variant.variantId")
+    .select("variant.variantId", "variantId")
+    .addSelect("variant.name", "variantName")
+    .addSelect("variant.sku", "sku")
+    .addSelect("variant.price", "price")
+    .addSelect("product.productId", "productId")
+    .addSelect("product.productName", "productName")
+    .addSelect("color.colorName", "color")
+    .addSelect("size.sizeName", "size")
+    .addSelect("MIN(image.image_url)", "image")
+    .addSelect("COALESCE(SUM(oi.quantity),0)", "totalSold")
+    .addSelect("COALESCE(SUM(oi.total_price),0)", "revenue")
     .where(
       "product.shopProfileId = :shopProfileId",
       { shopProfileId }
     )
-    .groupBy(
-      "product.productId"
-    )
-    .addGroupBy(
-      "product.productName"
-    )
-    .orderBy(
-      "SUM(oi.quantity)",
-      "DESC"
-    )
+    .groupBy("variant.variantId")
+    .addGroupBy("variant.name")
+    .addGroupBy("variant.sku")
+    .addGroupBy("variant.price")
+    .addGroupBy("product.productId")
+    .addGroupBy("product.productName")
+    .addGroupBy("color.colorName")
+    .addGroupBy("size.sizeName")
+    .orderBy("SUM(oi.quantity)", "DESC")
     .limit(5)
     .getRawMany();
 };
@@ -665,4 +760,16 @@ const getSalesOverview = (
   }
 
   return query.getRawMany();
+};
+const calculateChange = (
+  current: number,
+  previous: number
+) => {
+  if (previous === 0) {
+    return current > 0 ? 100 : 0;
+  }
+
+  return Number(
+    (((current - previous) / previous) * 100).toFixed(2)
+  );
 };

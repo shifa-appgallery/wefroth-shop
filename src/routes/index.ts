@@ -16,6 +16,7 @@ import genderRoutes from "./genderRoute"
 import wishlistRoutes from "./wishlistRoutes"
 import bannerRoutes from "./bannerRoute"
 import transactionRoutes from "./transactionRoute"
+import  ReturnRequest from "./returnRequestRoute" 
 
 const router = Router();
 
@@ -36,5 +37,6 @@ router.use("/gender", genderRoutes);
 router.use("/wishlist", wishlistRoutes);
 router.use("/banner", bannerRoutes);
 router.use("/transaction", transactionRoutes);
+router.use("/ReturnRequest", ReturnRequest);
 
 export default router;

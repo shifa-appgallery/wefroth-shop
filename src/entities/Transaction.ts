@@ -7,6 +7,8 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
+  OneToMany,
 } from "typeorm";
 
 import { Order } from "./Order";
@@ -76,6 +78,17 @@ export class Transaction {
     nullable: true,
   })
   gateway_response: Record<string, any>;
+
+
+  @ManyToOne(() => Transaction, (transaction) => transaction.refunds, {
+    nullable: true,
+    onDelete: "SET NULL",
+  })
+  @JoinColumn({ name: "refunded_transaction_id" })
+  refundedTransaction: Transaction;
+
+  @OneToMany(() => Transaction, (transaction) => transaction.refundedTransaction)
+  refunds: Transaction[];
 
   @Column({ default: true })
   is_active: boolean;

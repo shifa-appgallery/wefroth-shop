@@ -212,7 +212,7 @@ export const createSquarePayment = async (
                 payment,
                 (_, value) =>
                     typeof value === "bigint"
-                        ? value.toString()   // or Number(value)
+                        ? value.toString()
                         : value
             )
         );
@@ -266,55 +266,94 @@ export const refundTransaction = async (
     userId: number
 ) => {
 
-    const transaction =
-        await transactionRepository.findOne({
-            where: {
-                transactionId,
-                is_active: true,
-            },
-        });
+    const transaction = await transactionRepository.findOne({
+        where: {
+            transactionId,
+            is_active: true,
+        },
+        relations: ["order"],
+    });
 
     if (!transaction) {
-        throw new Error("Transaction not found");
+        throw new Error("Transaction not found.");
     }
 
     if (!transaction.transaction_reference) {
+        throw new Error("Payment reference not found.");
+    }
+
+    // Total refunded till now
+    const previousRefunds = await transactionRepository
+        .createQueryBuilder("transaction")
+        .select("COALESCE(SUM(transaction.amount),0)", "total")
+        .where("transaction.transaction_type = :type", {
+            type: TransactionType.REFUND,
+        })
+        .andWhere(
+            "transaction.refunded_transaction_id = :transactionId",
+            {
+                transactionId: transaction.transactionId,
+            }
+        )
+        .getRawOne();
+
+    const alreadyRefunded =
+        Number(previousRefunds.total);
+
+    const originalAmount =
+        Number(transaction.amount);
+
+    if (
+        alreadyRefunded + amount >
+        originalAmount
+    ) {
         throw new Error(
-            "Payment reference not found"
+            "Refund amount exceeds original payment."
         );
     }
-    const refund =
-        await refundPayment(
-            transaction.transaction_reference,
-            amount
-        );
+
+    const refund = await refundPayment(
+        transaction.transaction_reference,
+        amount
+    );
 
     const gatewayResponse = JSON.parse(
         JSON.stringify(
             refund,
             (_, value) =>
                 typeof value === "bigint"
-                    ? value.toString() 
+                    ? value.toString()
                     : value
         )
     );
 
     const refundTransaction =
         transactionRepository.create({
+
             seller_type: transaction.seller_type,
+
             seller_id: transaction.seller_id,
+
             order: transaction.order,
-            transaction_type:
-                TransactionType.REFUND,
+
+            transaction_type: TransactionType.REFUND,
+
+            refundedTransaction: transaction, 
+
             transaction_reference:
                 refund.refund?.id,
-            payment_gateway: "SQUARE",
-            payment_method:
-                transaction.payment_method,
+
+            payment_gateway: transaction.payment_gateway,
+
+            payment_method: transaction.payment_method,
+
             amount,
+
             transaction_status:
                 TransactionStatus.SETTLED,
+
             gateway_response: gatewayResponse,
+
             created_by: userId,
         });
 
