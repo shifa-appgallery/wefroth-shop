@@ -74,6 +74,8 @@ export const createOrder = async (
             quantity,
             unit_price: unitPrice,
             total_price: totalPrice,
+            seller_type: product.seller_type,
+            seller_id: userId,
             created_by: userId,
         });
     }

@@ -52,7 +52,7 @@ export const createReturnRequest = async (
         }
 
         // Ensure the logged-in user owns the order
-        if (orderItem.order.user_id !== userId) {
+        if (orderItem.order.user_id !== Number(userId)) {
             throw new Error(
                 `You are not allowed to return Order Item ${item.orderItemId}`
             );
@@ -124,7 +124,7 @@ export const approveRejectReturnRequest = async (
         where: {
             returnRequestId: body.returnRequestId,
             seller_id: sellerId,
-        },  
+        },
     });
 
     if (!request) {
