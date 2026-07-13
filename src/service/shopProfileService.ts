@@ -425,7 +425,10 @@ export const getShopDashboard = async (
       color: item.color,
       size: item.size,
 
-      images: item.image ?? [],
+      images:
+        typeof item.images === "string"
+          ? JSON.parse(item.images)
+          : item.images ?? [],
 
       price: Number(item.price),
       totalSold: Number(item.totalSold),
@@ -680,49 +683,110 @@ const getRecentOrders = (
 const getTopSellingProducts = (
   shopProfileId: number
 ) => {
-  return variantRepo
-    .createQueryBuilder("variant")
+  return orderItemRepository
+    .createQueryBuilder("oi")
+    .leftJoin("oi.variant", "variant")
     .leftJoin("variant.product", "product")
+    .leftJoin("variant.color", "color")
+    .leftJoin("variant.size", "size")
     .leftJoin(
       "variant.variantImages",
       "image",
       "image.is_active = true"
     )
-    .leftJoin("variant.color", "color")
-    .leftJoin("variant.size", "size")
-    .leftJoin("order_items", "oi", "oi.variantVariantId = variant.variantId")
-    .select("variant.variantId", "variantId")
-    .addSelect("variant.name", "variantName")
-    .addSelect("variant.sku", "sku")
-    .addSelect("variant.price", "price")
-    .addSelect("product.productId", "productId")
-    .addSelect("product.productName", "productName")
-    .addSelect("color.name", "color")
-    .addSelect("size.name", "size")
+    .select(
+      "product.productId",
+      "productId"
+    )
+    .addSelect(
+      "product.productName",
+      "productName"
+    )
+
+    .addSelect(
+      "variant.variantId",
+      "variantId"
+    )
+    .addSelect(
+      "variant.name",
+      "variantName"
+    )
+    .addSelect(
+      "variant.sku",
+      "sku"
+    )
+    .addSelect(
+      "variant.price",
+      "price"
+    )
+
+    .addSelect(
+      "color.name",
+      "color"
+    )
+    .addSelect(
+      "size.name",
+      "size"
+    )
+
     .addSelect(
       `COALESCE(
-    JSON_AGG(DISTINCT image.image_url)
-    FILTER (WHERE image.image_url IS NOT NULL),
-    '[]'
-  )`,
+        JSON_AGG(DISTINCT image.image_url)
+        FILTER (WHERE image.image_url IS NOT NULL),
+        '[]'
+      )`,
       "images"
     )
-    .addSelect("COALESCE(SUM(oi.quantity),0)", "totalSold")
-    .addSelect("COALESCE(SUM(oi.total_price),0)", "revenue")
+
+    .addSelect(
+      "SUM(oi.quantity)",
+      "totalSold"
+    )
+
+    .addSelect(
+      "SUM(oi.total_price)",
+      "revenue"
+    )
+
     .where(
       "product.shopProfileId = :shopProfileId",
       { shopProfileId }
     )
-    .groupBy("variant.variantId")
-    .addGroupBy("variant.name")
-    .addGroupBy("variant.sku")
-    .addGroupBy("variant.price")
-    .addGroupBy("product.productId")
-    .addGroupBy("product.productName")
-    .addGroupBy("color.name")
-    .addGroupBy("size.name")
-    .orderBy("SUM(oi.quantity)", "DESC")
+
+    .groupBy(
+      "product.productId"
+    )
+    .addGroupBy(
+      "product.productName"
+    )
+
+    .groupBy(
+      "variant.variantId"
+    )
+    .addGroupBy(
+      "variant.name"
+    )
+    .addGroupBy(
+      "variant.sku"
+    )
+    .addGroupBy(
+      "variant.price"
+    )
+
+    .addGroupBy(
+      "color.name"
+    )
+    .addGroupBy(
+      "size.name"
+    )
+
+    .orderBy(
+      "SUM(oi.quantity)",
+      "DESC"
+    )
+
     .limit(5)
+
     .getRawMany();
 };
 const getSalesOverview = (
