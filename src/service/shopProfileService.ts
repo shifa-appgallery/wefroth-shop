@@ -304,8 +304,6 @@ export const getShopDashboard = async (
     ),
   ]);
   return {
-    data: {
-
       // Shop Profile Details
       shopProfile: {
         shopProfileId: shop.shopProfileId,
@@ -414,7 +412,6 @@ export const getShopDashboard = async (
             ),
         })
       ),
-    },
   };
 }
 
