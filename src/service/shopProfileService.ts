@@ -46,6 +46,16 @@ export const createShopProfile = async (
     logo_url: body.logo_url,
     theme_color: body.theme_color,
 
+    // Shop Address
+    address: body.address,
+    city: body.city,
+    state: body.state,
+    country: body.country,
+    postal_code: body.postal_code,
+    landmark: body.landmark,
+    latitude: body.latitude,
+    longitude: body.longitude,
+
     created_by: userId,
   });
 
@@ -88,6 +98,14 @@ export const updateShopProfile = async (
   userId: number
 ) => {
 
+  const shopProfile = await shopProfileRepository.findOne({
+    where: { shopProfileId },
+  });
+
+  if (!shopProfile) {
+    throw new Error("Shop profile not found");
+  }
+
   await shopProfileRepository.update(
     shopProfileId,
     {
@@ -96,6 +114,16 @@ export const updateShopProfile = async (
       logo_url: body.logo_url,
       theme_color: body.theme_color,
       profileId: body.profileId,
+
+      // Shop Address
+      address: body.address,
+      city: body.city,
+      state: body.state,
+      country: body.country,
+      postal_code: body.postal_code,
+      landmark: body.landmark,
+      latitude: body.latitude,
+      longitude: body.longitude,
 
       updated_by: userId,
     }
@@ -276,9 +304,6 @@ export const getShopDashboard = async (
     ),
   ]);
   return {
-    success: true,
-    message: "Shop dashboard details fetched successfully",
-
     data: {
 
       // Shop Profile Details

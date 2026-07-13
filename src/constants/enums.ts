@@ -25,6 +25,7 @@ export enum TransactionType {
   COMMISSION = "COMMISSION",
   REFUND = "REFUND",
   ADJUSTMENT = "ADJUSTMENT",
+  PAYMENT = "PAYMENT",
 }
 
 export enum TransactionStatus {
@@ -58,4 +59,16 @@ export enum CategoryType {
   WOMEN = "WOMEN",
   KIDS = "KIDS",
   ALL = "ALL",
+}
+
+export enum ReturnStatus {
+  REQUESTED = "REQUESTED",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+  SHIPPED = "SHIPPED",
+  RECEIVED = "RECEIVED",
+  REFUNDED = "REFUNDED",
+  CLOSED = "CLOSED",
+  REFUND_INITIATED = "REFUND_INITIATED",
+  REFUND_FAILED = "REFUND_FAILED",
 }

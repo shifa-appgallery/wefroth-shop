@@ -31,6 +31,30 @@ export class ShopProfile {
   @Column({ nullable: true })
   theme_color: string;
 
+  @Column({ type: "text", nullable: true })
+  address: string;
+
+  @Column({ nullable: true })
+  city: string;
+
+  @Column({ nullable: true })
+  state: string;
+
+  @Column({ nullable: true })
+  country: string;
+
+  @Column({ nullable: true })
+  postal_code: string;
+
+  @Column({ nullable: true })
+  landmark: string;
+
+  @Column("decimal", { precision: 10, scale: 7, nullable: true })
+  latitude: number;
+
+  @Column("decimal", { precision: 10, scale: 7, nullable: true })
+  longitude: number;
+
   @Column({ default: true })
   is_active: boolean;
 
