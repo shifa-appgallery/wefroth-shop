@@ -425,7 +425,7 @@ export const getShopDashboard = async (
       color: item.color,
       size: item.size,
 
-      images: item.images ?? [],
+      images: item.image ?? [],
 
       price: Number(item.price),
       totalSold: Number(item.totalSold),
