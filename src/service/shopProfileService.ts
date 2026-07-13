@@ -690,77 +690,39 @@ const getTopSellingProducts = (
     )
     .leftJoin("variant.color", "color")
     .leftJoin("variant.size", "size")
-    .leftJoin(
-      "order_items",
-      "oi",
-      "oi.variantVariantId = variant.variantId"
-    )
+    .leftJoin("order_items", "oi", "oi.variantVariantId = variant.variantId")
     .select("variant.variantId", "variantId")
     .addSelect("variant.name", "variantName")
     .addSelect("variant.sku", "sku")
     .addSelect("variant.price", "price")
-
-    .addSelect(
-      "product.productId",
-      "productId"
-    )
-    .addSelect(
-      "product.productName",
-      "productName"
-    )
-
-    .addSelect(
-      "color.name",
-      "color"
-    )
-    .addSelect(
-      "size.name",
-      "size"
-    )
-
-    // Get all images
+    .addSelect("product.productId", "productId")
+    .addSelect("product.productName", "productName")
+    .addSelect("color.name", "color")
+    .addSelect("size.name", "size")
     .addSelect(
       `COALESCE(
-        JSON_AGG(DISTINCT image.image_url)
-        FILTER (WHERE image.image_url IS NOT NULL),
-        '[]'
-      )`,
+    JSON_AGG(DISTINCT image.image_url)
+    FILTER (WHERE image.image_url IS NOT NULL),
+    '[]'
+  )`,
       "images"
     )
-
-    .addSelect(
-      "COALESCE(SUM(oi.quantity),0)",
-      "totalSold"
-    )
-
-    .addSelect(
-      "COALESCE(SUM(oi.total_price),0)",
-      "revenue"
-    )
-
+    .addSelect("COALESCE(SUM(oi.quantity),0)", "totalSold")
+    .addSelect("COALESCE(SUM(oi.total_price),0)", "revenue")
     .where(
       "product.shopProfileId = :shopProfileId",
       { shopProfileId }
     )
-
     .groupBy("variant.variantId")
     .addGroupBy("variant.name")
     .addGroupBy("variant.sku")
     .addGroupBy("variant.price")
-
     .addGroupBy("product.productId")
     .addGroupBy("product.productName")
-
     .addGroupBy("color.name")
     .addGroupBy("size.name")
-
-    .orderBy(
-      "SUM(oi.quantity)",
-      "DESC"
-    )
-
+    .orderBy("SUM(oi.quantity)", "DESC")
     .limit(5)
-
     .getRawMany();
 };
 const getSalesOverview = (
