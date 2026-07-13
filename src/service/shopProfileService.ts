@@ -685,15 +685,18 @@ const getTopSellingProducts = (
 ) => {
   return orderItemRepository
     .createQueryBuilder("oi")
+
     .leftJoin("oi.variant", "variant")
     .leftJoin("variant.product", "product")
     .leftJoin("variant.color", "color")
     .leftJoin("variant.size", "size")
+
     .leftJoin(
       "variant.variantImages",
       "image",
       "image.is_active = true"
     )
+
     .select(
       "product.productId",
       "productId"
@@ -739,12 +742,12 @@ const getTopSellingProducts = (
     )
 
     .addSelect(
-      "SUM(oi.quantity)",
+      "COALESCE(SUM(oi.quantity),0)",
       "totalSold"
     )
 
     .addSelect(
-      "SUM(oi.total_price)",
+      "COALESCE(SUM(oi.total_price),0)",
       "revenue"
     )
 
@@ -753,32 +756,16 @@ const getTopSellingProducts = (
       { shopProfileId }
     )
 
-    .groupBy(
-      "product.productId"
-    )
-    .addGroupBy(
-      "product.productName"
-    )
+    .groupBy("product.productId")
+    .addGroupBy("product.productName")
 
-    .groupBy(
-      "variant.variantId"
-    )
-    .addGroupBy(
-      "variant.name"
-    )
-    .addGroupBy(
-      "variant.sku"
-    )
-    .addGroupBy(
-      "variant.price"
-    )
+    .addGroupBy("variant.variantId")
+    .addGroupBy("variant.name")
+    .addGroupBy("variant.sku")
+    .addGroupBy("variant.price")
 
-    .addGroupBy(
-      "color.name"
-    )
-    .addGroupBy(
-      "size.name"
-    )
+    .addGroupBy("color.name")
+    .addGroupBy("size.name")
 
     .orderBy(
       "SUM(oi.quantity)",
