@@ -48,13 +48,14 @@ export const createShopProfile = async (
 
     // Shop Address
     address: body.address,
-    city: body.city,
-    state: body.state,
-    country: body.country,
-    postal_code: body.postal_code,
-    landmark: body.landmark,
     latitude: body.latitude,
     longitude: body.longitude,
+    country: body.country,
+    country_code: body.country_code,
+    state: body.state,
+    city: body.city,
+
+    postal_code: body.postal_code,
 
     created_by: userId,
   });
@@ -117,13 +118,12 @@ export const updateShopProfile = async (
 
       // Shop Address
       address: body.address,
-      city: body.city,
-      state: body.state,
-      country: body.country,
-      postal_code: body.postal_code,
-      landmark: body.landmark,
       latitude: body.latitude,
       longitude: body.longitude,
+      country: body.country,
+      country_code: body.country_code,
+      state: body.state,
+      city: body.city,
 
       updated_by: userId,
     }

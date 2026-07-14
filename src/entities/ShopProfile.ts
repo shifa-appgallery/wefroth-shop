@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, Unique, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Unique,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from "typeorm";
 import { SellerType } from "../constants/enums";
 
 @Entity()
@@ -31,29 +38,38 @@ export class ShopProfile {
   @Column({ nullable: true })
   theme_color: string;
 
+  // Address Information
   @Column({ type: "text", nullable: true })
   address: string;
 
-  @Column({ nullable: true })
-  city: string;
+  @Column("decimal", {
+    precision: 10,
+    scale: 7,
+    nullable: true,
+  })
+  latitude: number;
 
-  @Column({ nullable: true })
-  state: string;
+  @Column("decimal", {
+    precision: 10,
+    scale: 7,
+    nullable: true,
+  })
+  longitude: number;
 
   @Column({ nullable: true })
   country: string;
 
   @Column({ nullable: true })
-  postal_code: string;
+  country_code: string;
 
   @Column({ nullable: true })
-  landmark: string;
+  state: string;
 
-  @Column("decimal", { precision: 10, scale: 7, nullable: true })
-  latitude: number;
+  @Column({ nullable: true })
+  city: string;
 
-  @Column("decimal", { precision: 10, scale: 7, nullable: true })
-  longitude: number;
+  @Column("int", { nullable: true })
+  postal_code: number | null;
 
   @Column({ default: true })
   is_active: boolean;

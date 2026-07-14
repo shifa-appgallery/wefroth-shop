@@ -3,40 +3,47 @@ import { ShippingAddress } from "../entities/ShippingAddress";
 
 const shippingAddresRepository = AppDataSource.getRepository(ShippingAddress);
 
-export const createShippingAddress = async (body: any, userId) => {
-    if (body.is_default) {
-        await shippingAddresRepository.update(
-            { user_id: userId },
-            { is_default: false }
-        );
-    }
-    const address = shippingAddresRepository.create({
-        ...body,
+export const createShippingAddress = async (body: any, userId: number) => {
+  if (body.is_default) {
+    await shippingAddresRepository.update(
+      {
         user_id: userId,
-        created_by: userId,
-    });
-    return await shippingAddresRepository.save(address)
-}
+        address_type: body.address_type,
+      },
+      {
+        is_default: false,
+      }
+    );
+  }
+
+  const address = shippingAddresRepository.create({
+    ...body,
+    user_id: userId,
+    created_by: userId,
+  });
+
+  return await shippingAddresRepository.save(address);
+};
 
 export const getMyAddressess = async (userId: number) => {
-    return await shippingAddresRepository.find({
-        where: {
-            user_id: userId,
-            is_active: true
-        },
-        order: {
-            created_at: "DESC"
-        },
-    });
+  return await shippingAddresRepository.find({
+    where: {
+      user_id: userId,
+      is_active: true
+    },
+    order: {
+      created_at: "DESC"
+    },
+  });
 };
 
 export const getAddressById = async (shippingAddressId: number, userId: number) => {
-    return await shippingAddresRepository.findOne({
-        where: {
-            shippingAddressId: shippingAddressId,
-            user_id: userId
-        },
-    });
+  return await shippingAddresRepository.findOne({
+    where: {
+      shippingAddressId: shippingAddressId,
+      user_id: userId
+    },
+  });
 };
 
 export const updateAddress = async (
@@ -45,10 +52,29 @@ export const updateAddress = async (
   userId: number
 ) => {
   const address = await shippingAddresRepository.findOne({
-    where: { shippingAddressId: id, user_id: userId },
+    where: {
+      shippingAddressId: id,
+      user_id: userId,
+    },
   });
 
-  if (!address) throw new Error("Address not found");
+  if (!address) {
+    throw new Error("Address not found");
+  }
+
+  // If making this address the default,
+  // remove default from other addresses of the same type
+  if (body.is_default) {
+    await shippingAddresRepository.update(
+      {
+        user_id: userId,
+        address_type: body.address_type ?? address.address_type,
+      },
+      {
+        is_default: false,
+      }
+    );
+  }
 
   Object.assign(address, body);
   address.updated_by = userId;

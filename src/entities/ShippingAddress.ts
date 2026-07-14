@@ -8,11 +8,13 @@ import {
   UpdateDateColumn,
   Unique,
 } from "typeorm";
+import { AddressType } from "../constants/enums";
 
 @Entity("shipping_addresses")
 
 @Unique("unique_shipping_address", [
   "user_id",
+  "address_type",
   "full_name",
   "mobile_number",
   "address_line_1",
@@ -21,7 +23,7 @@ import {
   "state",
   "country",
   "postal_code",
-  "emailId"
+  "emailId",
 ])
 export class ShippingAddress {
   @PrimaryGeneratedColumn()
@@ -53,6 +55,16 @@ export class ShippingAddress {
 
   @Column({ nullable: true })
   country: string;
+
+  @Column({ nullable: true })
+  country_code: string;
+
+  @Column({
+    type: "enum",
+    enum: AddressType,
+    nullable: true
+  })
+  address_type: AddressType;
 
   @Column()
   postal_code: string;

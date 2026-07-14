@@ -72,3 +72,8 @@ export enum ReturnStatus {
   REFUND_INITIATED = "REFUND_INITIATED",
   REFUND_FAILED = "REFUND_FAILED",
 }
+
+export enum AddressType {
+  SHIPPING = "SHIPPING",
+  BILLING = "BILLING",
+}
