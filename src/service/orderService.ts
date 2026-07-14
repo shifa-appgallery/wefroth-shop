@@ -284,26 +284,24 @@ export const getOrderDetails = async (
 
         shippingAddress: order.shipping_address
             ? {
-                shippingAddressId:
-                    order.shipping_address.shippingAddressId,
-                fullName:
-                    order.shipping_address.full_name,
-                mobileNumber:
-                    order.shipping_address.mobile_number,
-                email:
-                    order.shipping_address.emailId,
-                addressLine1:
-                    order.shipping_address.address_line_1,
-                addressLine2:
-                    order.shipping_address.address_line_2,
-                city:
-                    order.shipping_address.city,
-                state:
-                    order.shipping_address.state,
-                country:
-                    order.shipping_address.country,
-                postalCode:
-                    order.shipping_address.postal_code,
+                shippingAddressId: order.shipping_address.shippingAddressId,
+                userId: order.shipping_address.user_id,
+                fullName: order.shipping_address.full_name,
+                mobileNumber: order.shipping_address.mobile_number,
+                email: order.shipping_address.emailId,
+                address: order.shipping_address.address,
+                city: order.shipping_address.city,
+                state: order.shipping_address.state,
+                country: order.shipping_address.country,
+                countryCode: order.shipping_address.country_code,
+                postalCode: order.shipping_address.postal_code,
+                addressType: order.shipping_address.address_type,
+                isDefault: order.shipping_address.is_default,
+                isActive: order.shipping_address.is_active,
+                createdBy: order.shipping_address.created_by,
+                updatedBy: order.shipping_address.updated_by,
+                createdAt: order.shipping_address.created_at,
+                updatedAt: order.shipping_address.updated_at,
             }
             : null,
 

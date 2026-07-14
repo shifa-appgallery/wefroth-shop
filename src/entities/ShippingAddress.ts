@@ -17,11 +17,11 @@ import { AddressType } from "../constants/enums";
   "address_type",
   "full_name",
   "mobile_number",
-  "address_line_1",
-  "address_line_2",
+  "address",
   "city",
   "state",
   "country",
+  "country_code",
   "postal_code",
   "emailId",
 ])
@@ -38,11 +38,8 @@ export class ShippingAddress {
   @Column()
   mobile_number: string;
 
-  @Column()
-  address_line_1: string;
-
   @Column({ nullable: true })
-  address_line_2: string;
+  address: string;
 
   @Column({ nullable: true })
   emailId: string;
