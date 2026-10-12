@@ -48,6 +48,7 @@ export const createOrder = async (
     const orderItems: any[] = [];
 
     for (const cartItem of cart.items) {
+
         const product = cartItem.product;
 
         if (!product || !product.is_active) {
@@ -75,22 +76,26 @@ export const createOrder = async (
             unit_price: unitPrice,
             total_price: totalPrice,
             seller_type: product.seller_type,
-            seller_id: userId,
+            seller_id:  product.shopProfile?.shopProfileId || null,
             created_by: userId,
         });
     }
 
+    // Coupon Calculation
     let coupon = null;
     let discountAmount = 0;
 
     if (body.couponId) {
+
         coupon = await couponRepository.findOne({
             where: {
                 couponId: body.couponId,
+                is_active: true,
             },
         });
 
         if (coupon) {
+
             discountAmount =
                 (subtotal *
                     Number(coupon.discount_percentage || 0)) /
@@ -98,13 +103,16 @@ export const createOrder = async (
         }
     }
 
+    // Shipping Address
     const shippingAddress =
         await shippingRepository.findOne({
             where: {
                 shippingAddressId:
                     body.shippingAddressId,
+                user_id: userId,
             },
         });
+
 
     if (!shippingAddress) {
         throw new Error(
@@ -112,13 +120,11 @@ export const createOrder = async (
         );
     }
 
-    const shippingAmount = Number(
-        body.shipping_amount || 0
-    );
+    // Calculate from backend
+    const shippingAmount = 0; // calculate your shipping logic here
 
-    const taxAmount = Number(
-        body.tax_amount || 0
-    );
+    const taxAmount =
+        (subtotal - discountAmount) * 0.18; // example GST 18%
 
     const totalAmount =
         subtotal -
@@ -128,24 +134,29 @@ export const createOrder = async (
 
     const order = orderRepository.create({
         user_id: userId,
-        order_number: `ORD-${Date.now()}`,
+        order_number:
+            `ORD-${Date.now()}`,
         shipping_address: shippingAddress,
         coupon,
         cart,
         subtotal,
-        discount_amount: discountAmount,
-        shipping_amount: shippingAmount,
-        tax_amount: taxAmount,
-        total_amount: totalAmount,
-        payment_method: body.payment_method,
-        notes: body.notes,
+        discount_amount:
+            discountAmount,
+        shipping_amount:
+            shippingAmount,
+        tax_amount:
+            taxAmount,
+        total_amount:
+            totalAmount,
+        // payment related
+        doSaveCard: body.doSaveCard === true || body.doSaveCard === "true",
+
+        customerCardId: body.customerCardId || null,
         created_by: userId,
     });
 
     const savedOrder =
         await orderRepository.save(order);
-
-    // Save Order Items
 
     await orderItemRepository.save(
         orderItems.map((item) => ({
@@ -153,15 +164,17 @@ export const createOrder = async (
             order: savedOrder,
         }))
     );
-    // Clear Cart
+    // Clear cart after order creation
+
     await cartItemRepository.delete({
         cart: {
             cartId: cart.cartId,
         },
     });
 
-    return await getOrderById(savedOrder.orderId);
-
+    return await getOrderById(
+        savedOrder.orderId
+    );
 };
 
 export const getOrders = async (

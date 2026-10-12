@@ -103,6 +103,18 @@ export class Order {
   })
   notes: string;
 
+  @Column({
+    default: false,
+  })
+  doSaveCard: boolean;
+
+
+  @Column({
+    type: "varchar",
+    nullable: true,
+  })
+  customerCardId: string;
+
   @OneToMany(() => OrderItem, (item) => item.order, {
     cascade: true,
   })
