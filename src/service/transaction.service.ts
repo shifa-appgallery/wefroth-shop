@@ -202,10 +202,12 @@ export const createSquarePayment = async (
     userId: number
 ) => {
     try {
+
         const payment = await createPayment(
             body.sourceId,
             body.amount
         );
+
 
         const gatewayResponse = JSON.parse(
             JSON.stringify(
@@ -217,49 +219,137 @@ export const createSquarePayment = async (
             )
         );
 
+
         let order = null;
 
         if (body.orderId) {
+
             order = await orderRepository.findOne({
                 where: {
                     orderId: body.orderId,
                 },
             });
 
+
             if (!order) {
                 throw new Error("Order not found");
             }
         }
 
-        const transaction = transactionRepository.create({
-            seller_type: body.seller_type,
-            seller_id: body.seller_id,
-            order,
-            transaction_type: TransactionType.SALE,
-            transaction_reference: payment.payment?.id,
-            payment_gateway: "SQUARE",
-            payment_method:
-                payment.payment?.cardDetails?.card?.cardBrand ??
-                "CARD",
-            amount: body.amount,
-            transaction_status: TransactionStatus.SETTLED,
-            gateway_response: gatewayResponse,
-            created_by: userId,
-        });
 
-        return await transactionRepository.save(transaction);
+        // Check existing SALE transaction
+        let transaction =
+            await transactionRepository.findOne({
+                where: {
+                    order: {
+                        orderId: body.orderId,
+                    },
+                    transaction_type:
+                        TransactionType.SALE,
+                },
+            });
+
+
+
+        if (transaction) {
+
+            // Update existing transaction
+
+            transaction.transaction_reference =
+                payment.payment?.id;
+
+
+            transaction.payment_gateway =
+                "SQUARE";
+
+
+            transaction.payment_method =
+                payment.payment?.cardDetails
+                    ?.card?.cardBrand ?? "CARD";
+
+
+            transaction.amount =
+                body.amount;
+
+
+            transaction.transaction_status =
+                TransactionStatus.SETTLED;
+
+
+            transaction.gateway_response =
+                gatewayResponse;
+
+
+            transaction.updated_by =
+                userId;
+
+
+        } else {
+
+
+            // Create only first time
+
+            transaction =
+                transactionRepository.create({
+
+                    seller_type:
+                        body.seller_type,
+
+                    seller_id:
+                        body.seller_id,
+
+                    order,
+
+                    transaction_type:
+                        TransactionType.SALE,
+
+                    transaction_reference:
+                        payment.payment?.id,
+
+                    payment_gateway:
+                        "SQUARE",
+
+                    payment_method:
+                        payment.payment?.cardDetails
+                            ?.card?.cardBrand ?? "CARD",
+
+                    amount:
+                        body.amount,
+
+                    transaction_status:
+                        TransactionStatus.SETTLED,
+
+                    gateway_response:
+                        gatewayResponse,
+
+                    created_by:
+                        userId,
+                });
+        }
+
+
+        return await transactionRepository.save(
+            transaction
+        );
+
+
     } catch (error: any) {
+
         console.error("Square Payment Error:");
         console.dir(error, { depth: null });
 
+
         if (error.errors) {
-            console.log("Square Errors:", error.errors);
+            console.log(
+                "Square Errors:",
+                error.errors
+            );
         }
+
 
         throw error;
     }
 };
-
 export const refundTransaction = async (
     transactionId: number,
     amount: number,

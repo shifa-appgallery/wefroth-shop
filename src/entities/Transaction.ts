@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
   JoinColumn,
   OneToMany,
+  Index,
 } from "typeorm";
 
 import { Order } from "./Order";
@@ -20,6 +21,14 @@ import {
 } from "../constants/enums";
 
 @Entity("transactions")
+@Index(
+  "unique_sale_transaction_per_order",
+  ["order", "transaction_type"],
+  {
+    unique: true,
+    where: `"transaction_type" = 'SALE'`
+  }
+)
 export class Transaction {
   @PrimaryGeneratedColumn()
   transactionId: number;

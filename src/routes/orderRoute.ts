@@ -24,5 +24,8 @@ router.get("/get-orders-details", verifyToken, (req: Request, res: Response) => 
 router.get("/get-orders-list", verifyToken, (req: Request, res: Response) => {
     orderController.getOrderListController(req, res);
 });
+router.get("/payment-details", verifyToken, (req: Request, res: Response) => {
+    orderController.getPaymentDetails(req, res);
+});
 
 export default router;

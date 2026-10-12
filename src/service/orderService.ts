@@ -8,7 +8,7 @@ import { Coupon } from "../entities/Coupon";
 import { ShippingAddress } from "../entities/ShippingAddress";
 import { Cart } from "../entities/Cart";
 import { CartItem } from "../entities/CartItems";
-import { OrderStatus } from "../constants/enums";
+import { OrderStatus, TransactionType } from "../constants/enums";
 
 const orderRepository = AppDataSource.getRepository(Order);
 const orderItemRepository = AppDataSource.getRepository(OrderItem);
@@ -76,7 +76,7 @@ export const createOrder = async (
             unit_price: unitPrice,
             total_price: totalPrice,
             seller_type: product.seller_type,
-            seller_id:  product.shopProfile?.shopProfileId || null,
+            seller_id: product.shopProfile?.shopProfileId || null,
             created_by: userId,
         });
     }
@@ -581,5 +581,112 @@ export const getOrderList = async (
                 thumbnail: thumbnail?.media_url || null,
             };
         }),
+    };
+};
+
+export const getPaymentDetailsService = async (
+    orderId: number
+) => {
+
+    const order = await orderRepository.findOne({
+        where: {
+            orderId,
+        },
+        relations: [
+            "transactions",
+            "transactions.refunds",
+            "shipping_address",
+            "coupon",
+        ],
+    });
+
+    if (!order) {
+        throw new Error("Order not found");
+    }
+
+    const transaction =
+        order.transactions?.find(
+            (transaction) =>
+                transaction.transaction_type === TransactionType.SALE
+        );
+
+
+    const paymentDetails = transaction
+        ? {
+            transactionId:
+                transaction.transactionId,
+
+            transactionType:
+                transaction.transaction_type,
+
+            transactionReference:
+                transaction.transaction_reference,
+
+            paymentGateway:
+                transaction.payment_gateway,
+
+            paymentMethod:
+                transaction.payment_method,
+
+            amount:
+                Number(transaction.amount),
+
+            status:
+                transaction.transaction_status,
+
+            gatewayResponse:
+                transaction.gateway_response,
+
+            createdAt:
+                transaction.created_at,
+
+            refunds:
+                transaction.refunds?.map(
+                    (refund) => ({
+                        transactionId:
+                            refund.transactionId,
+
+                        amount:
+                            Number(refund.amount),
+
+                        status:
+                            refund.transaction_status,
+
+                        createdAt:
+                            refund.created_at,
+                    })
+                ) || [],
+        }
+        : null;
+
+    return {
+        orderId: order.orderId,
+        orderNumber:
+            order.order_number,
+        paymentStatus:
+            order.payment_status,
+        totalAmount:
+            Number(order.total_amount),
+        subtotal:
+            Number(order.subtotal),
+        discount:
+            Number(order.discount_amount),
+        tax:
+            Number(order.tax_amount),
+        shipping:
+            Number(order.shipping_amount),
+        paymentDetails: paymentDetails,
+        shippingAddress:
+            order.shipping_address,
+        coupon:
+            order.coupon
+                ? {
+                    code: order.coupon.code,
+                    discount:
+                        order.coupon.discount_percentage,
+                }
+                : null,
+        createdAt:
+            order.created_at,
     };
 };

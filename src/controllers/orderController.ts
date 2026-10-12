@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { AuthRequest } from "../middleware/authorization";
-import { createOrder, getOrderById, getOrderDetails, getOrderList, getOrders, updateOrderStatus } from "../service/orderService";
+import { createOrder, getOrderById, getOrderDetails, getOrderList, getOrders, getPaymentDetailsService, updateOrderStatus } from "../service/orderService";
 
 export const createOrderController = async (
   req: AuthRequest,
@@ -150,4 +150,40 @@ export const getOrderListController = async (
       message: error.message,
     });
   }
+};
+
+export const getPaymentDetails = async (
+    req: AuthRequest,
+    res: Response
+) => {
+
+    try {
+
+        const {
+            orderId
+        } = req.query;
+
+        const data =
+            await getPaymentDetailsService(
+                Number(orderId)
+            );
+
+
+        return res.status(200).json({
+            status: true,
+            message:
+                "Payment details fetched successfully",
+            data,
+        });
+
+
+    } catch (error: any) {
+
+        return res.status(400).json({
+            status: false,
+            message:
+                error.message,
+        });
+
+    }
 };
