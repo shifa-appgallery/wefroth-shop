@@ -162,7 +162,7 @@ export const approveRejectReturnRequest = async (
         await returnRequestRepository.save(request);
 
         return {
-            message: "Return request rejected successfully.",
+            message: "Return request rejected .",
             request,
         };
     }

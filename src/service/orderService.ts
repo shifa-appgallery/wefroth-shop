@@ -615,31 +615,22 @@ export const getPaymentDetailsService = async (
         ? {
             transactionId:
                 transaction.transactionId,
-
             transactionType:
                 transaction.transaction_type,
-
             transactionReference:
                 transaction.transaction_reference,
-
             paymentGateway:
                 transaction.payment_gateway,
-
             paymentMethod:
                 transaction.payment_method,
-
             amount:
                 Number(transaction.amount),
-
             status:
                 transaction.transaction_status,
-
             gatewayResponse:
                 transaction.gateway_response,
-
             createdAt:
                 transaction.created_at,
-
             refunds:
                 transaction.refunds?.map(
                     (refund) => ({
